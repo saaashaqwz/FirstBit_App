@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/magenta"
-    tools:context=".UI.AuthActivity">
+    tools:context=".firstbit_app.UI.AuthActivity">
 
     <TextView
         android:layout_width="wrap_content"

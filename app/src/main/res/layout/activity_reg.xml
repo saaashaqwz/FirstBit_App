@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/dark_purple"
     android:orientation="vertical"
-    tools:context=".UI.RegActivity">
+    tools:context=".firstbit_app.UI.RegActivity">
 
     <TextView
         android:layout_width="wrap_content"
