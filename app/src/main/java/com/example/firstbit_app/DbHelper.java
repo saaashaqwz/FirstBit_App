@@ -78,4 +78,41 @@ public class DbHelper extends SQLiteOpenHelper {
         db.close();
         return exists;
     }
+
+    /**
+     * проверяет существование пользователя с указанным логином в БД
+     */
+    public boolean isLoginExists(String login) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE login = ?", new String[]{login});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    /**
+     * проверяет существование пользователя с указанным телефоном в БД
+     */
+    public boolean isPhoneExists(String phone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE phone = ?", new String[]{phone});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    /**
+     * возвращает id пользователя по логину
+     */
+    public int getUserId(String login) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT id FROM users WHERE login = ?", new String[]{login});
+        int id = -1;
+        if (c.moveToFirst()) id = c.getInt(0);
+        c.close();
+        db.close();
+        return id;
+    }
 }
