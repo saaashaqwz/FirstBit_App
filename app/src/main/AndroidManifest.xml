@@ -13,16 +13,16 @@
         android:theme="@style/Theme.FirstBit_App"
         tools:targetApi="31">
         <activity
-            android:name=".firstbit_app.UI.AuthActivity"
+            android:name=".UI.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".firstbit_app.UI.AuthActivity"
+            android:name=".UI.AuthActivity"
             android:exported="false" />
         <activity
-            android:name=".firstbit_app.UI.RegActivity"
+            android:name=".UI.RegActivity"
             android:exported="false" />
         <activity
-            android:name=".firstbit_app.UI.MainActivity"
+            android:name=".UI.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
