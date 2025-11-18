@@ -1,5 +1,6 @@
 package com.example.firstbit_app.UI;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -121,7 +122,12 @@ public class HomeActivity extends AppCompatActivity {
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
         if (this.getClass().equals(targetActivity)) {
             setActiveNavItem((LinearLayout) navView);
+            return;
         }
+
+        Intent intent = new Intent(this, targetActivity);
+        startActivity(intent);
+        finish();
     }
 
     private void setActiveNavItem(LinearLayout activeNav) {
