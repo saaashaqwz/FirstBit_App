@@ -6,7 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.Models.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * вспомогательный класс для работы с SQLite
@@ -14,7 +18,7 @@ import com.example.firstbit_app.Models.User;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -35,6 +39,14 @@ public class DbHelper extends SQLiteOpenHelper {
                 "password TEXT)";
         db.execSQL(CREATE_USERS_TABLE);
         android.util.Log.d("DbHelper", "Таблица пользователей создана");
+
+        // таблица категорий
+        String CREATE_CATEGORIES_TABLE = "CREATE TABLE categories (" +
+                "id INTEGER PRIMARY KEY, " +
+                "title TEXT)";
+        db.execSQL(CREATE_CATEGORIES_TABLE);
+        android.util.Log.d("DbHelper", "Таблица категорий создана");
+
         initializeData(db);
     }
 
@@ -46,6 +58,8 @@ public class DbHelper extends SQLiteOpenHelper {
         android.util.Log.d("DbHelper", "Upgrading database from version " + oldVersion + " to " + newVersion);
 
         db.execSQL("DROP TABLE IF EXISTS users");
+        db.execSQL("DROP TABLE IF EXISTS categories");
+
         onCreate(db);
     }
 
@@ -54,10 +68,12 @@ public class DbHelper extends SQLiteOpenHelper {
      */
     private void initializeData(SQLiteDatabase db) {
         android.util.Log.d("DbHelper", "Инициализация данных...");
+
+        initializeCategories(db);
     }
 
     /**
-     * методы для работы с пользователями
+     * метод для добавления пользователя
      */
     public void addUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -69,6 +85,9 @@ public class DbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * метод для получения пользователя
+     */
     public boolean getUser(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM users WHERE login = ? AND password = ?",
@@ -114,5 +133,28 @@ public class DbHelper extends SQLiteOpenHelper {
         c.close();
         db.close();
         return id;
+    }
+
+    /**
+     * метод инициализации категорий
+     */
+    private void initializeCategories(SQLiteDatabase db) {
+        android.util.Log.d("DbHelper", "Инициализация категорий...");
+
+        List<Category> categories = new ArrayList<>();
+        categories.add(new Category(1, "Услуги"));
+        categories.add(new Category(2, "Бухгалтерия"));
+        categories.add(new Category(3, "Кадры"));
+        categories.add(new Category(4, "Торговля"));
+        categories.add(new Category(5, "Склад"));
+        categories.add(new Category(6, "Производство"));
+
+        for (Category category : categories) {
+            ContentValues values = new ContentValues();
+            values.put("id", category.getId());
+            values.put("title", category.getTitle());
+            db.insert("categories", null, values);
+        }
+        android.util.Log.d("DbHelper", "Категории инициализированы: " + categories.size());
     }
 }
