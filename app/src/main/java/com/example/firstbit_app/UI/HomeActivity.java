@@ -12,22 +12,30 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.firstbit_app.Adapters.CategoryAdapter;
 import com.example.firstbit_app.Adapters.ImageSliderAdapter;
+import com.example.firstbit_app.DbHelper;
+import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * главный экран приложения с товарами и услугами
  */
 public class HomeActivity extends AppCompatActivity {
 
+    private DbHelper dbHelper;
     private LinearLayout navHome, navCart, navSetting;
+    RecyclerView categoryRecycler;
+    CategoryAdapter categoryAdapter;
     private ViewPager2 viewPager2;
     private ImageSliderAdapter adapter;
     private ArrayList<Integer> imageList;
@@ -38,7 +46,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        dbHelper = new DbHelper(this, null);
+
         viewPager2 = findViewById(R.id.image_slider);
+
+        List<Category> categoryList = dbHelper.getAllCategories();
+        setCategoryRecycler(categoryList);
 
         initializeViews();
         setupCustomNavigation();
@@ -157,5 +170,19 @@ public class HomeActivity extends AppCompatActivity {
             text.setTextColor(inactiveColor);
             text.setTextSize(12);
         }
+    }
+
+    /**
+     * настраивает горизонтальный список категорий
+     */
+    private void setCategoryRecycler(List<Category> categoryList) {
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+
+        categoryRecycler = findViewById(R.id.category_recycler);
+        categoryRecycler.setLayoutManager(layoutManager);
+        categoryRecycler.setNestedScrollingEnabled(false);
+
+        categoryAdapter = new CategoryAdapter(this, categoryList);
+        categoryRecycler.setAdapter(categoryAdapter);
     }
 }

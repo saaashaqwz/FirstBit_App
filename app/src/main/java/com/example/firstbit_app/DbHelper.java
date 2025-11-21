@@ -157,4 +157,26 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         android.util.Log.d("DbHelper", "Категории инициализированы: " + categories.size());
     }
+
+    /**
+     * метод для получения всех категорий
+     */
+    public List<Category> getAllCategories() {
+        List<Category> categoryList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM categories ORDER BY id", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Category category = new Category();
+                category.setId(cursor.getInt(0));
+                category.setTitle(cursor.getString(1));
+                categoryList.add(category);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return categoryList;
+    }
 }
