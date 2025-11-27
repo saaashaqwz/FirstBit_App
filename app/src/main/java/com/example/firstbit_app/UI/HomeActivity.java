@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -20,8 +21,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.firstbit_app.Adapters.CategoryAdapter;
 import com.example.firstbit_app.Adapters.ImageSliderAdapter;
+import com.example.firstbit_app.Adapters.ProductAdapter;
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Category;
+import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.R;
 
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private DbHelper dbHelper;
     private LinearLayout navHome, navCart, navSetting;
-    RecyclerView categoryRecycler;
+    RecyclerView categoryRecycler, productRecycler;
     CategoryAdapter categoryAdapter;
     private ViewPager2 viewPager2;
     private ImageSliderAdapter adapter;
@@ -47,6 +50,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         dbHelper = new DbHelper(this, null);
+
+        productRecycler = findViewById(R.id.product_list);
+        setupCombinedRecyclerView();
 
         viewPager2 = findViewById(R.id.image_slider);
 
@@ -184,5 +190,29 @@ public class HomeActivity extends AppCompatActivity {
 
         categoryAdapter = new CategoryAdapter(this, categoryList);
         categoryRecycler.setAdapter(categoryAdapter);
+    }
+
+    private void setupCombinedRecyclerView() {
+        try {
+            List<Product> products = dbHelper.getAllProducts();
+
+            android.util.Log.d("HomeActivity", "Products загружен: " + products.size());
+
+            ProductAdapter productAdapter = new ProductAdapter(this, products);
+            productRecycler.setAdapter(productAdapter);
+
+            GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+            productRecycler.setLayoutManager(layoutManager);
+            productRecycler.setNestedScrollingEnabled(false);
+
+        } catch (Exception e) {
+            android.util.Log.e("HomeActivity", "Ошибка настройки комбинированного recycler view", e);
+            GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+            productRecycler.setLayoutManager(layoutManager);
+            productRecycler.setNestedScrollingEnabled(false);
+
+            ProductAdapter productAdapter = new ProductAdapter(this, new ArrayList<>());
+            productRecycler.setAdapter(productAdapter);
+        }
     }
 }
