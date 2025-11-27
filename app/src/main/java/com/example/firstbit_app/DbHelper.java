@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.firstbit_app.Models.Category;
+import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.Models.User;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -47,6 +48,19 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_CATEGORIES_TABLE);
         android.util.Log.d("DbHelper", "Таблица категорий создана");
 
+        // таблица продуктов
+        String CREATE_PRODUCTS_TABLE = "CREATE TABLE products (" +
+                "id INTEGER PRIMARY KEY, " +
+                "image TEXT, " +
+                "category_id INTEGER, " +
+                "title TEXT, " +
+                "description TEXT, " +
+                "license TEXT, " +
+                "price INTEGER, " +
+                "FOREIGN KEY(category_id) REFERENCES categories(id))";
+        db.execSQL(CREATE_PRODUCTS_TABLE);
+        android.util.Log.d("DbHelper", "Таблица продуктов создана");
+
         initializeData(db);
     }
 
@@ -59,6 +73,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.execSQL("DROP TABLE IF EXISTS users");
         db.execSQL("DROP TABLE IF EXISTS categories");
+        db.execSQL("DROP TABLE IF EXISTS products");
 
         onCreate(db);
     }
@@ -70,6 +85,7 @@ public class DbHelper extends SQLiteOpenHelper {
         android.util.Log.d("DbHelper", "Инициализация данных...");
 
         initializeCategories(db);
+        initializeProducts(db);
     }
 
     /**
@@ -178,5 +194,79 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return categoryList;
+    }
+
+    private void initializeProducts(SQLiteDatabase db) {
+        android.util.Log.d("DbHelper", "Initializing products...");
+
+        List<Product> products = new ArrayList<>();
+
+        products.add(new Product(1, "product_buh_base.png", 2, "Бухгалтерия", "1С:Бухгалтерия БАЗОВАЯ", "Базовая версия для малого бизнеса и ИП. Однопользовательская версия с основным набором функций для ведения учёта.", "Постоянная лицензия на 1 рабочее место", 4400));
+        products.add(new Product(2, "product_buh_corp.png", 2, "Бухгалтерия", "1С:Бухгалтерия ПРОФ", "Профессиональная версия для ведения полноценного бухгалтерского и налогового учёта. Поддержка многопользовательской работы.", "Постоянная лицензия на 1 рабочее место", 20100));
+        products.add(new Product(3, "product_buh_corp.png", 2, "Бухгалтерия", "1С:Бухгалтерия КОРП", "Корпоративная версия для распределённых компаний с сложной учётной структурой. Расширенный функционал для консолидации.", "Постоянная лицензия на 1 рабочее место", 51700));
+        products.add(new Product(9, "product_reporting.png", 2, "Бухгалтерия", "1С:Отчётность для ЮР.ЛИЦ", "Надстройка для удобной подготовки и отправки регламентированной отчётности (налоговой, бухгалтерской, статистической) в госорганы напрямую из 1С.", "Годовая подписка на 1 рабочее место (ИТС)", 6600));
+        products.add(new Product(10, "product_reporting.png", 2, "Бухгалтерия", "1С:Отчётность для ИП", "Специализированная версия для индивидуальных предпринимателей по подготовке и отправке отчётности в госорганы.", "Годовая подписка на 1 рабочее место (ИТС)", 2400));
+
+        products.add(new Product(4, "product_zup_prof.png", 3, "Кадры", "1С:Зарплата и управление персоналом БАЗОВАЯ", "Базовая версия для малого бизнеса. Расчёт зарплаты, кадровый учёт и подготовка отчётности для небольшого штата.", "Постоянная лицензия на 1 рабочее место", 10800));
+        products.add(new Product(5, "product_zup_prof.png", 3, "Кадры", "1С:Зарплата и управление персоналом ПРОФ", "Профессиональная версия с полным функционалом для расчёта зарплаты, управления персоналом и кадрового делопроизводства.", "Постоянная лицензия на 1 рабочее место", 34800));
+        products.add(new Product(6, "product_zup_corp.png", 3, "Кадры", "1С:Зарплата и управление персоналом КОРП", "Мощное решение для холдингов и крупных компаний с распределённой структурой. Поддержка МСФО и сложных систем мотивации.", "Постоянная лицензия на 1 рабочее место", 167400));
+
+        products.add(new Product(7, "product_management_base.png", 4, "Торговля", "1С:Управление торговлей БАЗОВАЯ", "Решение для автоматизации оперативного учёта в небольших торговых компаниях. Учёт продаж, закупок и движения товаров.", "Постоянная лицензия на 1 рабочее место", 9700));
+        products.add(new Product(8, "product_management_prof.png", 4, "Торговля", "1С:Управление торговлей ПРОФ", "Полнофункциональная система для автоматизации розничной и оптовой торговли. Управление отношениями с клиентами (CRM), маркетинг и аналитика.", "Постоянная лицензия на 1 рабочее место", 34800));
+
+        products.add(new Product(12, "product_logist_base.png", 5, "Склад", "1С:Логистика. Управление складом БАЗОВАЯ", "Автоматизация складских операций: от приёмки до отгрузки. Подходит для малых и средних складов.", "Постоянная лицензия на 1 рабочее место", 55900));
+        products.add(new Product(13, "product_wms.png", 5, "Склад", "1С:WMS Логистика. Управление складом", "Профессиональная система управления складом (WMS). Оптимизация зонирования, маршрутизации, работа с радиотерминалами.", "Постоянная лицензия на 1 рабочее место", 367700));
+
+        products.add(new Product(11, "product_automation.png", 6, "Производство", "1С:Комплексная автоматизация", "Единая система для управления финансами, продажами, закупками, производством и запасами для среднего бизнеса.", "Постоянная лицензия на 1 рабочее место", 94700));
+        products.add(new Product(14, "product_firma_base.png", 6, "Производство", "1С:Управление нашей фирмой БАЗОВАЯ", "Готовое решение для малого бизнеса. Учёт продаж, закупок, денежных средств, клиентов и сделок без глубоких настроек.", "Постоянная лицензия на 1 рабочее место", 7300));
+        products.add(new Product(15, "product_firma_prof.png", 6, "Производство", "1С:Управление нашей фирмой ПРОФ", "Расширенная версия для управления малым бизнесом с возможностью глубокой настройки под специфику компании.", "Постоянная лицензия на 1 рабочее место", 26800));
+        products.add(new Product(16, "product_ohrana.png", 6, "Производство", "1С:Производственная безопасность. Охрана труда", "Автоматизация управления охраной труда и промышленной безопасностью. Учет СИЗ, планирование инструктажей, управление опасными объектами, формирование отчетности для Ростехнадзора и Минтруда.", "Постоянная лицензия на 1 рабочее место", 45500));
+
+        for (Product product : products) {
+            ContentValues values = new ContentValues();
+            values.put("id", product.getId());
+            values.put("image", product.getImage());
+            values.put("category_id", product.getCategory().getId());
+            values.put("title", product.getTitle());
+            values.put("description", product.getDescription());
+            values.put("license", product.getLicense());
+            values.put("price", product.getPrice());
+            db.insert("products", null, values);
+        }
+        android.util.Log.d("DbHelper", "Products initialized: " + products.size());
+    }
+
+    /**
+     * метод для получения всех продуктов
+     */
+    public List<Product> getAllProducts() {
+        List<Product> productList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT p.*, c.title as category_title FROM products p " +
+                "LEFT JOIN categories c ON p.category_id = c.id " +
+                "ORDER BY p.id";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Product product = new Product(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getInt(2),
+                        cursor.getString(7),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        cursor.getString(5),
+                        cursor.getInt(6)
+                );
+                productList.add(product);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return productList;
     }
 }
