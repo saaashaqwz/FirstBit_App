@@ -20,11 +20,14 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.firstbit_app.Adapters.CategoryAdapter;
+import com.example.firstbit_app.Adapters.CombinedAdapter;
 import com.example.firstbit_app.Adapters.ImageSliderAdapter;
 import com.example.firstbit_app.Adapters.ProductAdapter;
+import com.example.firstbit_app.Adapters.ServiceAdapter;
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.Models.Product;
+import com.example.firstbit_app.Models.Service;
 import com.example.firstbit_app.R;
 
 import java.util.ArrayList;
@@ -195,16 +198,21 @@ public class HomeActivity extends AppCompatActivity {
     private void setupCombinedRecyclerView() {
         try {
             List<Product> products = dbHelper.getAllProducts();
+            List<Service> services = dbHelper.getAllServices();
 
             android.util.Log.d("HomeActivity", "Products загружен: " + products.size());
+            android.util.Log.d("HomeActivity", "Services загружен: " + services.size());
 
             ProductAdapter productAdapter = new ProductAdapter(this, products);
-            productRecycler.setAdapter(productAdapter);
+            ServiceAdapter serviceAdapter = new ServiceAdapter(this, services);
+
+            CombinedAdapter combinedAdapter = new CombinedAdapter(productAdapter, serviceAdapter);
+            combinedAdapter.setData(products, services);
 
             GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
             productRecycler.setLayoutManager(layoutManager);
             productRecycler.setNestedScrollingEnabled(false);
-
+            productRecycler.setAdapter(combinedAdapter);
         } catch (Exception e) {
             android.util.Log.e("HomeActivity", "Ошибка настройки комбинированного recycler view", e);
             GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
