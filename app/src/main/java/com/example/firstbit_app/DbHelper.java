@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.Models.Product;
+import com.example.firstbit_app.Models.Service;
 import com.example.firstbit_app.Models.User;
 
 import java.util.ArrayList;
@@ -61,6 +62,17 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_PRODUCTS_TABLE);
         android.util.Log.d("DbHelper", "Таблица продуктов создана");
 
+        // таблица услуг
+        String CREATE_SERVICES_TABLE = "CREATE TABLE services (" +
+                "id INTEGER PRIMARY KEY, " +
+                "category_id INTEGER, " +
+                "title TEXT, " +
+                "deadline TEXT, " +
+                "price INTEGER, " +
+                "FOREIGN KEY(category_id) REFERENCES categories(id))";
+        db.execSQL(CREATE_SERVICES_TABLE);
+        android.util.Log.d("DbHelper", "Таблица услуг создана");
+
         initializeData(db);
     }
 
@@ -74,6 +86,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS users");
         db.execSQL("DROP TABLE IF EXISTS categories");
         db.execSQL("DROP TABLE IF EXISTS products");
+        db.execSQL("DROP TABLE IF EXISTS services");
 
         onCreate(db);
     }
@@ -86,6 +99,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         initializeCategories(db);
         initializeProducts(db);
+        initializeServices(db);
     }
 
     /**
@@ -268,5 +282,60 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return productList;
+    }
+
+    private void initializeServices(SQLiteDatabase db) {
+        android.util.Log.d("DbHelper", "Initializing services...");
+
+        List<Service> services = new ArrayList<>();
+
+        services.add(new Service(1, 1,"Услуги","Внедрение 1С:Бухгалтерия", "5-10 рабочих дней", 25000));
+        services.add(new Service(2, 1, "Услуги","Обновление конфигураций 1С", "1-3 рабочих дня", 5000));
+        services.add(new Service(3, 1, "Услуги","Доработка под требования бизнеса", "10-20 рабочих дней", 45000));
+        services.add(new Service(4, 1, "Услуги","Техническая поддержка 1С (месяц)", "В день обращения", 8000));
+        services.add(new Service(5, 1, "Услуги","Консультация по 1С", "1-2 рабочих дня", 3000));
+
+        for (Service service : services) {
+            ContentValues values = new ContentValues();
+            values.put("id", service.getId());
+            values.put("category_id", service.getCategory().getId());
+            values.put("title", service.getTitle());
+            values.put("deadline", service.getDeadline());
+            values.put("price", service.getPrice());
+            db.insert("services", null, values);
+        }
+        android.util.Log.d("DbHelper", "Services initialized: " + services.size());
+    }
+
+    /**
+     * метод для получения всех услуг
+     */
+    public List<Service> getAllServices() {
+        List<Service> serviceList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT s.*, c.title as category_title FROM services s " +
+                "LEFT JOIN categories c ON s.category_id = c.id " +
+                "ORDER BY s.id";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Service service = new Service(
+                        cursor.getInt(0),
+                        cursor.getInt(1),
+                        cursor.getString(5),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getInt(4)
+                );
+                serviceList.add(service);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return serviceList;
     }
 }

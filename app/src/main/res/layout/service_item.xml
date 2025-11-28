@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:gravity="center_horizontal"
+        android:background="@drawable/product_item_border">
+
+        <ImageView
+            android:id="@+id/service_icon"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:contentDescription="Service icon"
+            android:src="@drawable/icon_service" />
+
+        <TextView
+            android:id="@+id/service_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Название услуги"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/inter_bold"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/service_deadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Срок выполнения"
+            android:textSize="12sp"
+            android:textColor="@color/dark_grey"
+            android:fontFamily="@font/inter"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/service_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0 ₽"
+            android:textColor="@color/magenta"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="4dp" />
+
+        <Button
+            android:id="@+id/add_to_cart_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Заказать"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/magenta"
+            android:fontFamily="@font/inter"
+            android:padding="6dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
