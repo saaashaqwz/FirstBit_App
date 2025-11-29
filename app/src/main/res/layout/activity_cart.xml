@@ -1,11 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.CartActivity">
+    android:background="@color/light_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottom_section"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Корзина"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textColor="@color/dark_purple"
+            android:background="@color/white" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/cart_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/empty_cart_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Корзина пуста\n\nДобавьте товары или услуги из каталога"
+            android:textSize="16sp"
+            android:textColor="@color/grey"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_navigation"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/total_price_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Итого: 0 ₽"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/magenta"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/btn_checkout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ОФОРМИТЬ ЗАКАЗ"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@drawable/button_primary"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottom_navigation"
@@ -15,7 +85,9 @@
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:background="@android:color/white"
+        android:elevation="8dp">
 
         <LinearLayout
             android:id="@+id/nav_home"
@@ -24,7 +96,6 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="@drawable/nav_item_selector"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -32,16 +103,14 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/icon_home"
-                android:tint="@color/nav_item_active" />
+                app:tint="@color/nav_item_inactive" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Главная"
-                android:textColor="@color/nav_item_active"
+                android:textColor="@color/nav_item_inactive"
                 android:textSize="12sp"
-                android:textStyle="bold"
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>
@@ -53,7 +122,6 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="@drawable/nav_item_selector"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -61,15 +129,15 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/icon_cart"
-                android:tint="@color/nav_item_inactive" />
+                app:tint="@color/nav_item_active" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Корзина"
-                android:textColor="@color/nav_item_inactive"
+                android:textColor="@color/nav_item_active"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>
@@ -81,7 +149,6 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="@drawable/nav_item_selector"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -89,8 +156,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/icon_setting"
-                android:tint="@color/nav_item_inactive" />
+                app:tint="@color/nav_item_inactive" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -101,5 +167,7 @@
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>
+
     </LinearLayout>
+
 </RelativeLayout>
