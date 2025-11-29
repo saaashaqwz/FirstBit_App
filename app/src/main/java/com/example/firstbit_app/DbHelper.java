@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.firstbit_app.Models.Cart;
 import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.Models.Service;
@@ -73,6 +74,20 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_SERVICES_TABLE);
         android.util.Log.d("DbHelper", "Таблица услуг создана");
 
+        // таблица корзины
+        String CREATE_CART_TABLE = "CREATE TABLE cart (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "user_id INTEGER, " +
+                "product_id INTEGER, " +
+                "service_id INTEGER, " +
+                "quantity INTEGER DEFAULT 1, " +
+                "added_date DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY(user_id) REFERENCES users(id), " +
+                "FOREIGN KEY(product_id) REFERENCES products(id), " +
+                "FOREIGN KEY(service_id) REFERENCES services(id))";
+        db.execSQL(CREATE_CART_TABLE);
+        android.util.Log.d("DbHelper", "Таблица корзин создана");
+
         initializeData(db);
     }
 
@@ -87,6 +102,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS categories");
         db.execSQL("DROP TABLE IF EXISTS products");
         db.execSQL("DROP TABLE IF EXISTS services");
+        db.execSQL("DROP TABLE IF EXISTS cart");
 
         onCreate(db);
     }

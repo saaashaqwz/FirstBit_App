@@ -103,6 +103,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
+                android:src="@drawable/icon_home"
                 app:tint="@color/nav_item_inactive" />
 
             <TextView
@@ -129,6 +130,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
+                android:src="@drawable/icon_cart"
                 app:tint="@color/nav_item_active" />
 
             <TextView
@@ -156,6 +158,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
+                android:src="@drawable/icon_setting"
                 app:tint="@color/nav_item_inactive" />
 
             <TextView
