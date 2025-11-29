@@ -21,7 +21,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -353,5 +353,222 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return serviceList;
+    }
+
+    /**
+     * добавление товара в корзину
+     */
+    public boolean addToCart(int userId, int productId, int serviceId) {
+        if (isItemInCart(userId, productId, serviceId)) {
+            CartQuantityInfo info = getCartItemQuantityInfo(userId, productId, serviceId);
+            int newQuantity = info.quantity + 1;
+            return updateCartItemQuantity(info.cartItemId, newQuantity);
+        } else {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("user_id", userId);
+
+            if (productId > 0) {
+                values.put("product_id", productId);
+            }
+            if (serviceId > 0) {
+                values.put("service_id", serviceId);
+            }
+
+            long result = db.insert("cart", null, values);
+            db.close();
+            return result != -1;
+        }
+    }
+
+    /**
+     * получение всех элементов корзины для пользователя
+     */
+    public List<Cart> getCartItems(int userId) {
+        List<Cart> cartItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT c.*, " +
+                "p.title as product_title, p.price as product_price, p.image as product_image, " +
+                "s.title as service_title, s.price as service_price, s.deadline as service_deadline " +
+                "FROM cart c " +
+                "LEFT JOIN products p ON c.product_id = p.id " +
+                "LEFT JOIN services s ON c.service_id = s.id " +
+                "WHERE c.user_id = ? " +
+                "ORDER BY c.added_date DESC";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Cart item = new Cart();
+                item.setId(cursor.getInt(0));
+                item.setUserId(cursor.getInt(1));
+
+                int productId = cursor.getInt(2);
+                int serviceId = cursor.getInt(3);
+                int quantity = cursor.getInt(4);
+
+                if (!cursor.isNull(2)) {
+                    item.setProductId(productId);
+                    item.setTitle(cursor.getString(6));
+                    int price = cursor.getInt(7);
+                    item.setPrice(price);
+                    item.setImage(cursor.getString(8));
+                    item.setType("product");
+                } else if (!cursor.isNull(3)) {
+                    item.setServiceId(serviceId);
+                    item.setTitle(cursor.getString(9));
+                    int price = cursor.getInt(10);
+                    item.setPrice(price);
+                    item.setDeadline(cursor.getString(11));
+                    item.setType("service");
+                }
+
+                item.setQuantity(quantity);
+                item.setAddedDate(cursor.getString(5));
+
+                cartItems.add(item);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return cartItems;
+    }
+
+    /**
+     * обновление количества товара в корзине
+     */
+    public boolean updateCartItemQuantity(int cartItemId, int quantity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("quantity", quantity);
+
+        int result = db.update("cart", values, "id = ?",
+                new String[]{String.valueOf(cartItemId)});
+        db.close();
+        return result > 0;
+    }
+
+    /**
+     * удаление элемента из корзины
+     */
+    public boolean removeFromCart(int cartItemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete("cart", "id = ?",
+                new String[]{String.valueOf(cartItemId)});
+        db.close();
+        return result > 0;
+    }
+
+    /**
+     * получение общего количества товаров в корзине
+     */
+    public int getCartItemsCount(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT SUM(quantity) FROM cart WHERE user_id = ?",
+                new String[]{String.valueOf(userId)});
+
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    /**
+     * получение общей суммы корзины
+     */
+    public int getCartTotalPrice(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT SUM(CASE " +
+                "WHEN c.product_id IS NOT NULL THEN p.price * c.quantity " +
+                "WHEN c.service_id IS NOT NULL THEN s.price * c.quantity " +
+                "ELSE 0 END) as total " +
+                "FROM cart c " +
+                "LEFT JOIN products p ON c.product_id = p.id " +
+                "LEFT JOIN services s ON c.service_id = s.id " +
+                "WHERE c.user_id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        int total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+
+        cursor.close();
+        db.close();
+        return total;
+    }
+
+    /**
+     * проверяет, есть ли товар/услуга уже в корзине пользователя
+     */
+    public boolean isItemInCart(int userId, int productId, int serviceId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query;
+        String[] args;
+
+        if (productId > 0) {
+            query = "SELECT * FROM cart WHERE user_id = ? AND product_id = ?";
+            args = new String[]{String.valueOf(userId), String.valueOf(productId)};
+        } else {
+            query = "SELECT * FROM cart WHERE user_id = ? AND service_id = ?";
+            args = new String[]{String.valueOf(userId), String.valueOf(serviceId)};
+        }
+
+        Cursor cursor = db.rawQuery(query, args);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    /**
+     * получает текущее количество и ID записи для товара/услуги в корзине
+     */
+    public CartQuantityInfo getCartItemQuantityInfo(int userId, int productId, int serviceId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query;
+        String[] args;
+
+        if (productId > 0) {
+            query = "SELECT id, quantity FROM cart WHERE user_id = ? AND product_id = ?";
+            args = new String[]{String.valueOf(userId), String.valueOf(productId)};
+        } else {
+            query = "SELECT id, quantity FROM cart WHERE user_id = ? AND service_id = ?";
+            args = new String[]{String.valueOf(userId), String.valueOf(serviceId)};
+        }
+
+        Cursor cursor = db.rawQuery(query, args);
+        CartQuantityInfo info = new CartQuantityInfo();
+
+        if (cursor.moveToFirst()) {
+            info.cartItemId = cursor.getInt(0);
+            info.quantity = cursor.getInt(1);
+        }
+
+        cursor.close();
+        db.close();
+        return info;
+    }
+
+    /**
+     * вспомогательный класс для хранения информации о количестве
+     */
+    public static class CartQuantityInfo {
+        public int cartItemId;
+        public int quantity;
+
+        public CartQuantityInfo() {
+            this.cartItemId = -1;
+            this.quantity = 0;
+        }
     }
 }

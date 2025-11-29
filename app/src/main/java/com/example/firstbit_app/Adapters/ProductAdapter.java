@@ -1,12 +1,16 @@
 package com.example.firstbit_app.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.R;
+import com.example.firstbit_app.UI.AuthActivity;
 
 import java.util.List;
 
@@ -65,6 +70,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 "drawable",
                 context.getPackageName()
         );
+
+        if (resourceId != 0) {
+            holder.productImage.setImageResource(resourceId);
+        } else {
+            holder.productImage.setImageResource(R.drawable.product_placeholder);
+        }
+
+        holder.addToCartButton.setOnClickListener(v -> {
+            addProductToCart(product);
+        });
     }
 
     @Override
@@ -99,5 +114,38 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             dbHelper.close();
         }
         super.finalize();
+    }
+
+    /**
+     * добавляет товар в корзину
+     */
+    private void addProductToCart(Product product) {
+        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(context, "Сначала войдите в аккаунт", Toast.LENGTH_SHORT).show();
+            ((Activity) context).startActivity(new Intent(context, AuthActivity.class));
+            return;
+        }
+
+        boolean success = dbHelper.addToCart(userId, product.getId(), 0);
+        if (success) {
+            Toast.makeText(context, "Товар \"" + product.getTitle() + "\" добавлен в корзину",
+                    Toast.LENGTH_SHORT).show();
+
+            if (cartUpdateListener != null) {
+                cartUpdateListener.onCartItemAdded();
+            }
+        } else {
+            Toast.makeText(context, "Ошибка добавления товара в корзину", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * устанавливает слушатель добавления в корзину
+     */
+    public void setCartUpdateListener(OnCartUpdateListener listener) {
+        this.cartUpdateListener = listener;
     }
 }

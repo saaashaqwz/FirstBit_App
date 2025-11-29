@@ -37,6 +37,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         this.listener = listener;
     }
 
+    /**
+     * создаёт новый ViewHolder для элемента корзины
+     */
     @NonNull
     @Override
     public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,6 +48,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         return new CartViewHolder(view);
     }
 
+    /**
+     * привязывает данные элемента корзины к ViewHolder
+     */
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         Cart cart = carts.get(position);
@@ -73,6 +79,63 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         } else {
             holder.itemDeadline.setVisibility(View.GONE);
         }
+
+        holder.btnIncrease.setOnClickListener(v -> {
+            int currentQuantity = cart.getQuantity();
+            int newQuantity = currentQuantity + 1;
+
+            cart.setQuantity(newQuantity);
+
+            holder.itemQuantity.setText(String.valueOf(newQuantity));
+            holder.itemTotal.setText(String.format("%,d ₽", cart.getTotalPrice()));
+
+            updateQuantity(cart.getId(), newQuantity, holder);
+        });
+
+        holder.btnDecrease.setOnClickListener(v -> {
+            int currentQuantity = cart.getQuantity();
+            int newQuantity = currentQuantity - 1;
+
+            if (newQuantity < 1) {
+                removeItem(cart.getId(), position);
+            } else {
+                cart.setQuantity(newQuantity);
+
+                holder.itemQuantity.setText(String.valueOf(newQuantity));
+                holder.itemTotal.setText(String.format("%,d ₽", cart.getTotalPrice()));
+
+                updateQuantity(cart.getId(), newQuantity, holder);
+            }
+        });
+
+        holder.btnRemove.setOnClickListener(v -> {
+            removeItem(cart.getId(), position);
+        });
+    }
+
+    private void updateQuantity(int cartItemId, int newQuantity, CartViewHolder holder) {
+        boolean success = dbHelper.updateCartItemQuantity(cartItemId, newQuantity);
+        if (success) {
+            if (listener != null) {
+                listener.onCartUpdated();
+            }
+        } else {
+            Toast.makeText(context, "Ошибка обновления количества", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void removeItem(int cartItemId, int position) {
+        boolean success = dbHelper.removeFromCart(cartItemId);
+        if (success) {
+            carts.remove(position);
+            notifyItemRemoved(position);
+            if (listener != null) {
+                listener.onCartUpdated();
+            }
+            Toast.makeText(context, "Товар удален из корзины", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Ошибка удаления товара", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -80,7 +143,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         return carts.size();
     }
 
-    public static class CartViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * вложанный класс
+     */
+    public static final class CartViewHolder extends RecyclerView.ViewHolder {
         ImageView itemImage;
         TextView itemTitle;
         TextView itemPrice;

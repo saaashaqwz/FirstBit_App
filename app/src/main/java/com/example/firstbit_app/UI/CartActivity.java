@@ -1,5 +1,6 @@
 package com.example.firstbit_app.UI;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,30 +10,64 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.firstbit_app.Adapters.CartAdapter;
+import com.example.firstbit_app.DbHelper;
+import com.example.firstbit_app.Models.Cart;
 import com.example.firstbit_app.R;
+
+import java.util.List;
 
 /**
  * активность корзины - отображает товары и услуги, добавленные пользователем
  */
-public class CartActivity extends AppCompatActivity {
+public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartUpdateListener {
 
     private LinearLayout navHome, navCart, navSetting;
+    private DbHelper dbHelper;
+    private RecyclerView cartRecyclerView;
+    private TextView emptyCartText, totalPriceText, btnCheckout;
+    private LinearLayout checkoutSection;
+    private CartAdapter cartAdapter;
 
+    /**
+     * вызывается при первом создании активности
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
+        dbHelper = new DbHelper(this, null);
+
         initializeViews();
         setupCustomNavigation();
+        setupCartRecyclerView();
         setActiveNavItem(navCart);
     }
 
+    /**
+     * инициализирует все View-элементы интерфейса
+     */
     private void initializeViews() {
         navHome = findViewById(R.id.nav_home);
         navCart = findViewById(R.id.nav_cart);
         navSetting = findViewById(R.id.nav_setting);
+
+        cartRecyclerView = findViewById(R.id.cart_recycler_view);
+        emptyCartText = findViewById(R.id.empty_cart_text);
+        totalPriceText = findViewById(R.id.total_price_text);
+        btnCheckout = findViewById(R.id.btn_checkout);
+        checkoutSection = findViewById(R.id.bottom_section);
+
+        btnCheckout.setOnClickListener(v -> {
+            if (getCartItemsCount() > 0) {
+                android.widget.Toast.makeText(this, "Функция оформления заказа в разработке",
+                        android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -85,5 +120,68 @@ public class CartActivity extends AppCompatActivity {
             text.setTextColor(inactiveColor);
             text.setTextSize(12);
         }
+    }
+
+    /**
+     * настраивает RecyclerView с элементами корзины
+     */
+    private void setupCartRecyclerView() {
+        List<Cart> carts = dbHelper.getCartItems(1);
+
+        cartAdapter = new CartAdapter( this, carts, this);
+        cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        cartRecyclerView.setAdapter(cartAdapter);
+
+        updateEmptyState();
+        updateCartTotal();
+    }
+
+    /**
+     * обновляет видимость блока "пустая корзина"
+     */
+    private void updateEmptyState() {
+        if (cartAdapter == null || cartAdapter.getItemCount() == 0) {
+            cartRecyclerView.setVisibility(View.GONE);
+            emptyCartText.setVisibility(View.VISIBLE);
+            checkoutSection.setVisibility(View.GONE);
+        } else {
+            cartRecyclerView.setVisibility(View.VISIBLE);
+            emptyCartText.setVisibility(View.GONE);
+            checkoutSection.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * обновляет отображение общей суммы корзины
+     */
+    private void updateCartTotal() {
+        int total = dbHelper.getCartTotalPrice(1);
+        if (totalPriceText != null) {
+            totalPriceText.setText(String.format("Итого: %,d ₽", total));
+        }
+    }
+
+    private int getCartItemsCount() {
+        return dbHelper.getCartItemsCount(1);
+    }
+
+    /**
+     * закрывает подключение к БД при уничтожении активности
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+    }
+
+    /**
+     * вызывается при изменении содержимого корзины
+     */
+    @Override
+    public void onCartUpdated() {
+        updateCartTotal();
+        updateEmptyState();
     }
 }

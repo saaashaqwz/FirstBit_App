@@ -31,7 +31,11 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
     private Context context;
     List<Service> serviceList;
     private DbHelper dbHelper;
+    private OnCartUpdateListener cartUpdateListener;
 
+    public interface OnCartUpdateListener {
+        void onCartItemAdded();
+    }
 
     public ServiceAdapter(Context context, List<Service> serviceList) {
         this.context = context;
@@ -75,6 +79,12 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         if (holder.serviceIcon != null) {
             holder.serviceIcon.setImageResource(R.drawable.icon_service);
         }
+
+        if (holder.addToCartButton != null) {
+            holder.addToCartButton.setOnClickListener(v -> {
+                addServiceToCart(service);
+            });
+        }
     }
 
     @Override
@@ -113,5 +123,38 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
             dbHelper.close();
         }
         super.finalize();
+    }
+
+    /**
+     * добавляет услугу в корзину
+     */
+    private void addServiceToCart(Service service) {
+        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(context, "Сначала войдите в аккаунт", Toast.LENGTH_SHORT).show();
+            ((Activity) context).startActivity(new Intent(context, AuthActivity.class));
+            return;
+        }
+
+        boolean success = dbHelper.addToCart(userId, 0, service.getId());
+        if (success) {
+            Toast.makeText(context, "Услуга \"" + service.getTitle() + "\" добавлена в корзину",
+                    Toast.LENGTH_SHORT).show();
+
+            if (cartUpdateListener != null) {
+                cartUpdateListener.onCartItemAdded();
+            }
+        } else {
+            Toast.makeText(context, "Ошибка добавления услуги в корзину", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * устанавливает слушатель добавления в корзину
+     */
+    public void setCartUpdateListener(OnCartUpdateListener listener) {
+        this.cartUpdateListener = listener;
     }
 }
