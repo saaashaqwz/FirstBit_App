@@ -47,6 +47,13 @@ public class HomeActivity extends AppCompatActivity {
     private ArrayList<Integer> imageList;
     private Handler handler;
 
+
+    private List<Product> allProducts;
+    private List<Service> allServices;
+    private CombinedAdapter combinedAdapter;
+    private ProductAdapter productAdapter;
+    private ServiceAdapter serviceAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +62,10 @@ public class HomeActivity extends AppCompatActivity {
         dbHelper = new DbHelper(this, null);
 
         productRecycler = findViewById(R.id.product_list);
+
+        allProducts = dbHelper.getAllProducts();
+        allServices = dbHelper.getAllServices();
+
         setupCombinedRecyclerView();
 
         viewPager2 = findViewById(R.id.image_slider);
@@ -192,22 +203,24 @@ public class HomeActivity extends AppCompatActivity {
         categoryRecycler.setNestedScrollingEnabled(false);
 
         categoryAdapter = new CategoryAdapter(this, categoryList);
+
+        categoryAdapter.setOnCategoryClickListener(new CategoryAdapter.OnCategoryClickListener() {
+            @Override
+            public void onCategoryClick(Category category, int position) {
+                filterProductsAndServicesByCategory(category.getId());
+            }
+        });
+
         categoryRecycler.setAdapter(categoryAdapter);
     }
 
     private void setupCombinedRecyclerView() {
         try {
-            List<Product> products = dbHelper.getAllProducts();
-            List<Service> services = dbHelper.getAllServices();
+            productAdapter = new ProductAdapter(this, allProducts);
+            serviceAdapter = new ServiceAdapter(this, allServices);
 
-            android.util.Log.d("HomeActivity", "Products загружен: " + products.size());
-            android.util.Log.d("HomeActivity", "Services загружен: " + services.size());
-
-            ProductAdapter productAdapter = new ProductAdapter(this, products);
-            ServiceAdapter serviceAdapter = new ServiceAdapter(this, services);
-
-            CombinedAdapter combinedAdapter = new CombinedAdapter(productAdapter, serviceAdapter);
-            combinedAdapter.setData(products, services);
+            combinedAdapter = new CombinedAdapter(productAdapter, serviceAdapter);
+            combinedAdapter.setData(allProducts, allServices);
 
             GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
             productRecycler.setLayoutManager(layoutManager);
@@ -215,12 +228,32 @@ public class HomeActivity extends AppCompatActivity {
             productRecycler.setAdapter(combinedAdapter);
         } catch (Exception e) {
             android.util.Log.e("HomeActivity", "Ошибка настройки комбинированного recycler view", e);
-            GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-            productRecycler.setLayoutManager(layoutManager);
-            productRecycler.setNestedScrollingEnabled(false);
+        }
+    }
 
-            ProductAdapter productAdapter = new ProductAdapter(this, new ArrayList<>());
-            productRecycler.setAdapter(productAdapter);
+    /**
+     * фильтрует товары и услуги по выбранной категории
+     */
+    private void filterProductsAndServicesByCategory(int categoryId) {
+        List<Product> filteredProducts = new ArrayList<>();
+        List<Service> filteredServices = new ArrayList<>();
+
+        if (categoryId == 1) {
+            filteredProducts.clear();
+            filteredServices.addAll(allServices);
+        }
+        else {
+            for (Product product : allProducts) {
+                if (product.getCategory().getId() == categoryId) {
+                    filteredProducts.add(product);
+                }
+            }
+            filteredServices.clear();
+        }
+
+        if (combinedAdapter != null) {
+            combinedAdapter.setData(filteredProducts, filteredServices);
+            combinedAdapter.notifyDataSetChanged();
         }
     }
 }
