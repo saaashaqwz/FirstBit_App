@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,6 +35,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private TextView emptyCartText, totalPriceText, btnCheckout;
     private LinearLayout checkoutSection;
     private CartAdapter cartAdapter;
+    private boolean isUpdating = false;
 
     /**
      * вызывается при первом создании активности
@@ -204,7 +207,14 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
      */
     @Override
     public void onCartUpdated() {
-        updateCartTotal();
-        updateEmptyState();
+        if (!isUpdating) {
+            isUpdating = true;
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                updateCartTotal();
+                updateEmptyState();
+                isUpdating = false;
+            }, 200);
+        }
     }
 }

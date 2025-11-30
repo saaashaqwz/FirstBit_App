@@ -25,6 +25,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private List<Cart> carts;
     private DbHelper dbHelper;
     private OnCartUpdateListener listener;
+    private static final long CLICK_DELAY = 500;
+    private long lastClickTime = 0;
 
     public interface OnCartUpdateListener {
         void onCartUpdated();
@@ -61,14 +63,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.itemTotal.setText(String.format("%,d ₽", cart.getTotalPrice()));
 
         if (cart.getType().equals("product") && cart.getImage() != null) {
-            int imageResource = context.getResources().getIdentifier(
-                    cart.getImage(),
-                    "drawable",
-                    context.getPackageName()
-            );
-            if (imageResource != 0) {
-                holder.itemImage.setImageResource(imageResource);
-            }
+            setProductImage(holder.itemImage, cart.getImage());
         } else {
             holder.itemImage.setImageResource(R.drawable.icon_service);
         }
@@ -108,11 +103,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             }
         });
 
+        // обработчики кликов с защитой от множественных нажатий
         holder.btnRemove.setOnClickListener(v -> {
-            removeItem(cart.getId(), position);
+            int adapterPosition = holder.getAdapterPosition();
+            if (canClick() && adapterPosition != RecyclerView.NO_POSITION) {
+                handleRemoveClick(cart.getId(), adapterPosition);
+            }
         });
     }
 
+    /**
+     * обновляет количество товара в БД
+     */
     private void updateQuantity(int cartItemId, int newQuantity, CartViewHolder holder) {
         boolean success = dbHelper.updateCartItemQuantity(cartItemId, newQuantity);
         if (success) {
@@ -124,6 +126,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         }
     }
 
+    /**
+     * удаляет элемент из корзины
+     */
     private void removeItem(int cartItemId, int position) {
         boolean success = dbHelper.removeFromCart(cartItemId);
         if (success) {
@@ -132,7 +137,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             if (listener != null) {
                 listener.onCartUpdated();
             }
-            Toast.makeText(context, "Товар удален из корзины", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Ошибка удаления товара", Toast.LENGTH_SHORT).show();
         }
@@ -169,5 +173,52 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             btnIncrease = itemView.findViewById(R.id.btn_increase);
             btnRemove = itemView.findViewById(R.id.btn_remove);
         }
+    }
+
+    /**
+     * устанавливает изображение товара по имени файла
+     */
+    private void setProductImage(ImageView imageView, String imageName) {
+        if (imageName == null || imageName.isEmpty()) {
+            imageView.setImageResource(R.drawable.product_placeholder);
+            return;
+        }
+
+        try {
+            String resourceName = imageName.replace(".png", "").replace(".jpg", "").replace(".jpeg", "");
+
+            int imageResource = context.getResources().getIdentifier(
+                    resourceName,
+                    "drawable",
+                    context.getPackageName()
+            );
+
+            if (imageResource != 0) {
+                imageView.setImageResource(imageResource);
+            } else {
+                imageView.setImageResource(R.drawable.product_placeholder);
+            }
+        } catch (Exception e) {
+            imageView.setImageResource(R.drawable.product_placeholder);
+        }
+    }
+
+    /**
+     * проверяет возможность обработки клика
+     */
+    private boolean canClick() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastClickTime < CLICK_DELAY) {
+            return false;
+        }
+        lastClickTime = currentTime;
+        return true;
+    }
+
+    /**
+     * обрабатывает удаление элемента из корзины
+     */
+    private void handleRemoveClick(int cartItemId, int adapterPosition) {
+        removeItem(cartItemId, adapterPosition);
     }
 }
