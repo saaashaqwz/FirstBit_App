@@ -2,11 +2,13 @@ package com.example.firstbit_app.UI;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -126,7 +128,17 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
      * настраивает RecyclerView с элементами корзины
      */
     private void setupCartRecyclerView() {
-        List<Cart> carts = dbHelper.getCartItems(1);
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(this, "Сначала войдите в аккаунт", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return;
+        }
+
+        List<Cart> carts = dbHelper.getCartItems(userId);
 
         cartAdapter = new CartAdapter( this, carts, this);
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -155,14 +167,25 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
      * обновляет отображение общей суммы корзины
      */
     private void updateCartTotal() {
-        int total = dbHelper.getCartTotalPrice(1);
+        int userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .getInt("user_id", -1);
+
+        if (userId == -1) {
+            return;
+        }
+
+        int total = dbHelper.getCartTotalPrice(userId);
+
         if (totalPriceText != null) {
             totalPriceText.setText(String.format("Итого: %,d ₽", total));
         }
     }
 
     private int getCartItemsCount() {
-        return dbHelper.getCartItemsCount(1);
+        int userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .getInt("user_id", -1);
+
+        return dbHelper.getCartItemsCount(userId);
     }
 
     /**

@@ -59,6 +59,13 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        int userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("user_id", -1);
+        if (userId == -1) {
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return;
+        }
+
         dbHelper = new DbHelper(this, null);
 
         productRecycler = findViewById(R.id.product_list);
