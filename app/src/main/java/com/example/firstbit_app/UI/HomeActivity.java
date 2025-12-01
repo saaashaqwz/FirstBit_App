@@ -39,7 +39,7 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity {
 
     private DbHelper dbHelper;
-    private LinearLayout navHome, navCart, navSetting;
+    private LinearLayout navHome, navCart, navProfile;
     RecyclerView categoryRecycler, productRecycler;
     CategoryAdapter categoryAdapter;
     private ViewPager2 viewPager2;
@@ -128,7 +128,7 @@ public class HomeActivity extends AppCompatActivity {
     private void initializeViews() {
         navHome = findViewById(R.id.nav_home);
         navCart = findViewById(R.id.nav_cart);
-        navSetting = findViewById(R.id.nav_setting);
+        navProfile = findViewById(R.id.nav_profile);
 
         imageList = new ArrayList<>();
 
@@ -156,7 +156,7 @@ public class HomeActivity extends AppCompatActivity {
     private void setupCustomNavigation() {
         navHome.setOnClickListener(v -> handleNavigationClick(v, HomeActivity.class));
         navCart.setOnClickListener(v -> handleNavigationClick(v, CartActivity.class));
-        navSetting.setOnClickListener(v -> handleNavigationClick(v, SettingActivity.class));
+        navProfile.setOnClickListener(v -> handleNavigationClick(v, ProfileActivity.class));
     }
 
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
@@ -184,7 +184,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void resetAllNavItems() {
-        LinearLayout[] navItems = {navHome, navCart, navSetting};
+        LinearLayout[] navItems = {navHome, navCart, navProfile};
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_item_inactive);
 
         for (LinearLayout navItem : navItems) {

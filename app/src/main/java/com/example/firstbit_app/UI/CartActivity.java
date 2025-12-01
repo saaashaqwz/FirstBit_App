@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartUpdateListener {
 
-    private LinearLayout navHome, navCart, navSetting;
+    private LinearLayout navHome, navCart, navProfile;
     private DbHelper dbHelper;
     private RecyclerView cartRecyclerView;
     private TextView emptyCartText, totalPriceText, btnCheckout;
@@ -59,7 +59,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private void initializeViews() {
         navHome = findViewById(R.id.nav_home);
         navCart = findViewById(R.id.nav_cart);
-        navSetting = findViewById(R.id.nav_setting);
+        navProfile = findViewById(R.id.nav_profile);
 
         cartRecyclerView = findViewById(R.id.cart_recycler_view);
         emptyCartText = findViewById(R.id.empty_cart_text);
@@ -84,7 +84,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private void setupCustomNavigation() {
         navHome.setOnClickListener(v -> handleNavigationClick(v, HomeActivity.class));
         navCart.setOnClickListener(v -> handleNavigationClick(v, CartActivity.class));
-        navSetting.setOnClickListener(v -> handleNavigationClick(v, SettingActivity.class));
+        navProfile.setOnClickListener(v -> handleNavigationClick(v, ProfileActivity.class));
     }
 
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
@@ -112,7 +112,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     }
 
     private void resetAllNavItems() {
-        LinearLayout[] navItems = {navHome, navCart, navSetting};
+        LinearLayout[] navItems = {navHome, navCart, navProfile};
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_item_inactive);
 
         for (LinearLayout navItem : navItems) {
