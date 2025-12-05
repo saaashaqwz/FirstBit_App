@@ -20,6 +20,7 @@ import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Service;
 import com.example.firstbit_app.R;
 import com.example.firstbit_app.UI.AuthActivity;
+import com.example.firstbit_app.UI.ItemDetailActivity;
 
 import java.util.List;
 
@@ -85,6 +86,13 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                 addServiceToCart(service);
             });
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ItemDetailActivity.class);
+            intent.putExtra("type", "service");
+            intent.putExtra("id", service.getId());
+            context.startActivity(intent);
+        });
     }
 
     @Override

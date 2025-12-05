@@ -19,6 +19,7 @@ import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.R;
 import com.example.firstbit_app.UI.AuthActivity;
+import com.example.firstbit_app.UI.ItemDetailActivity;
 
 import java.util.List;
 
@@ -79,6 +80,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         holder.addToCartButton.setOnClickListener(v -> {
             addProductToCart(product);
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ItemDetailActivity.class);
+            intent.putExtra("type", "product");
+            intent.putExtra("id", product.getId());
+            context.startActivity(intent);
         });
     }
 

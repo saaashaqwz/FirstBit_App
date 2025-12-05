@@ -300,6 +300,39 @@ public class DbHelper extends SQLiteOpenHelper {
         return productList;
     }
 
+    /**
+     * возвращает продукт по его id
+     */
+    public Product getProductId(int productId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Product product = null;
+
+        String query = "SELECT p.id, p.image, p.category_id, c.title AS category_title, " +
+                "p.title, p.description, p.license, p.price " +
+                "FROM products p " +
+                "LEFT JOIN categories c ON p.category_id = c.id " +
+                "WHERE p.id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(productId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            product = new Product(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getInt(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getInt(7)
+            );
+            cursor.close();
+        }
+
+        db.close();
+        return product;
+    }
+
     private void initializeServices(SQLiteDatabase db) {
         android.util.Log.d("DbHelper", "Initializing services...");
 
@@ -353,6 +386,37 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return serviceList;
+    }
+
+    /**
+     * возвращает услугу по её id
+     */
+    public Service getServiceId(int serviceId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Service service = null;
+
+        String query = "SELECT s.id, s.category_id, c.title AS category_title, " +
+                "s.title, s.deadline, s.price " +
+                "FROM services s " +
+                "LEFT JOIN categories c ON s.category_id = c.id " +
+                "WHERE s.id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(serviceId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            service = new Service(
+                    cursor.getInt(0),
+                    cursor.getInt(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getInt(5)
+            );
+            cursor.close();
+        }
+
+        db.close();
+        return service;
     }
 
     /**

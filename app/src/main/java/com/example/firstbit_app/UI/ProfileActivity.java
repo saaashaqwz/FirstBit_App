@@ -18,6 +18,7 @@ import com.example.firstbit_app.R;
 public class ProfileActivity extends AppCompatActivity {
 
     private LinearLayout navHome, navCart, navProfile;
+    private ImageView btnSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +28,24 @@ public class ProfileActivity extends AppCompatActivity {
         initializeViews();
         setupCustomNavigation();
         setActiveNavItem(navProfile);
+        setupSettingsButton();
     }
 
     private void initializeViews() {
         navHome = findViewById(R.id.nav_home);
         navCart = findViewById(R.id.nav_cart);
         navProfile = findViewById(R.id.nav_profile);
+        btnSettings = findViewById(R.id.btn_settings);
+    }
+
+    private void setupSettingsButton() {
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfileActivity.this, SettingActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
