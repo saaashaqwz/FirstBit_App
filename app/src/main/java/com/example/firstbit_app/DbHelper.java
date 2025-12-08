@@ -21,7 +21,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -648,5 +648,80 @@ public class DbHelper extends SQLiteOpenHelper {
             this.cartItemId = -1;
             this.quantity = 0;
         }
+    }
+
+    /**
+     * метод для получения одного элемента корзины по ID
+     */
+    public Cart getCartItem(int cartId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT c.*, " +
+                "p.title as product_title, p.price as product_price, p.image as product_image, " +
+                "s.title as service_title, s.price as service_price, s.deadline as service_deadline " +
+                "FROM cart c " +
+                "LEFT JOIN products p ON c.product_id = p.id " +
+                "LEFT JOIN services s ON c.service_id = s.id " +
+                "WHERE c.id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(cartId)});
+
+        Cart item = null;
+        if (cursor.moveToFirst()) {
+            item = new Cart();
+            item.setId(cursor.getInt(0));
+            item.setUserId(cursor.getInt(1));
+
+            int productId = cursor.getInt(2);
+            int serviceId = cursor.getInt(3);
+            int quantity = cursor.getInt(4);
+
+            if (!cursor.isNull(2)) {
+                item.setProductId(productId);
+                item.setTitle(cursor.getString(6));
+                int price = cursor.getInt(7);
+                item.setPrice(price);
+                item.setImage(cursor.getString(8));
+                item.setType("product");
+            } else if (!cursor.isNull(3)) {
+                item.setServiceId(serviceId);
+                item.setTitle(cursor.getString(9));
+                int price = cursor.getInt(10);
+                item.setPrice(price);
+                item.setDeadline(cursor.getString(11));
+                item.setType("service");
+            }
+
+            item.setQuantity(quantity);
+            item.setAddedDate(cursor.getString(5));
+        }
+
+        cursor.close();
+        db.close();
+        return item;
+    }
+
+    /**
+     * создаёт заказ на основе элемента корзины
+     */
+    public boolean createOrderFromCart(int cartId, int userId) {
+        Cart cart = getCartItem(cartId);
+        if (cart == null) return false;
+
+        int total = cart.getTotalPrice();
+        String deadline = (cart.getType().equals("service")) ? cart.getDeadline() : "Н/Д";
+        String status = "В ожидании";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("cart_id", cartId);
+        values.put("user_id", userId);
+        values.put("status", status);
+        values.put("deadline", deadline);
+        values.put("total", total);
+
+        long result = db.insert("orders", null, values);
+        db.close();
+        return result != -1;
     }
 }

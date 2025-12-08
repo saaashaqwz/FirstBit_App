@@ -22,6 +22,7 @@ import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Cart;
 import com.example.firstbit_app.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private LinearLayout checkoutSection;
     private CartAdapter cartAdapter;
     private boolean isUpdating = false;
+    private List<Cart> carts;
 
     /**
      * вызывается при первом создании активности
@@ -51,6 +53,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         setupCustomNavigation();
         setupCartRecyclerView();
         setActiveNavItem(navCart);
+        loadCartItems();
     }
 
     /**
@@ -67,12 +70,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         btnCheckout = findViewById(R.id.btn_checkout);
         checkoutSection = findViewById(R.id.bottom_section);
 
-        btnCheckout.setOnClickListener(v -> {
-            if (getCartItemsCount() > 0) {
-                android.widget.Toast.makeText(this, "Функция оформления заказа в разработке",
-                        android.widget.Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnCheckout.setOnClickListener(v -> checkoutCart());
     }
 
     @Override
@@ -141,14 +139,11 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
             return;
         }
 
-        List<Cart> carts = dbHelper.getCartItems(userId);
+        carts = dbHelper.getCartItems(userId);
 
-        cartAdapter = new CartAdapter( this, carts, this);
+        cartAdapter = new CartAdapter(this, carts, this);
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         cartRecyclerView.setAdapter(cartAdapter);
-
-        updateEmptyState();
-        updateCartTotal();
     }
 
     /**
@@ -216,5 +211,68 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
                 isUpdating = false;
             }, 200);
         }
+    }
+
+    /**
+     * загружает элементы корзины и обновляет UI
+     */
+    private void loadCartItems() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        carts = dbHelper.getCartItems(userId);
+        cartAdapter.notifyDataSetChanged();
+
+        int itemCount = dbHelper.getCartItemsCount(userId);
+        int totalPrice = dbHelper.getCartTotalPrice(userId);
+
+        totalPriceText.setText(String.format("Итого: %,d ₽", totalPrice));
+
+        if (itemCount == 0) {
+            cartRecyclerView.setVisibility(View.GONE);
+            emptyCartText.setVisibility(View.VISIBLE);
+            checkoutSection.setVisibility(View.GONE);
+        } else {
+            cartRecyclerView.setVisibility(View.VISIBLE);
+            emptyCartText.setVisibility(View.GONE);
+            checkoutSection.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * обрабатывает оформление заказа
+     */
+    private void checkoutCart() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (carts.isEmpty()) {
+            Toast.makeText(this, "Корзина пуста", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean allSuccess = true;
+        List<Cart> itemsToRemove = new ArrayList<>();
+
+        for (Cart cart : carts) {
+            boolean success = dbHelper.createOrderFromCart(cart.getId(), userId);
+            if (success) {
+                itemsToRemove.add(cart);
+            } else {
+                allSuccess = false;
+            }
+        }
+
+        for (Cart cart : itemsToRemove) {
+            dbHelper.removeFromCart(cart.getId());
+        }
+
+        if (allSuccess) {
+            Toast.makeText(this, "Заказ успешно оформлен!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Ошибка при оформлении некоторых элементов заказа", Toast.LENGTH_SHORT).show();
+        }
+
+        loadCartItems();
     }
 }
