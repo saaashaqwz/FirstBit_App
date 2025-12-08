@@ -88,6 +88,19 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_CART_TABLE);
         android.util.Log.d("DbHelper", "Таблица корзин создана");
 
+        // таблица заказов
+        String CREATE_ORDERS_TABLE = "CREATE TABLE orders (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "cart_id INTEGER, " +
+                "user_id INTEGER, " +
+                "status TEXT, " +
+                "deadline TEXT, " +
+                "total INTEGER, " +
+                "FOREIGN KEY(cart_id) REFERENCES cart(id) ON DELETE SET NULL, " +
+                "FOREIGN KEY(user_id) REFERENCES users(id))";
+        db.execSQL(CREATE_ORDERS_TABLE);
+        android.util.Log.d("DbHelper", "Таблица заказов создана");
+
         initializeData(db);
     }
 
@@ -103,6 +116,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS products");
         db.execSQL("DROP TABLE IF EXISTS services");
         db.execSQL("DROP TABLE IF EXISTS cart");
+        db.execSQL("DROP TABLE IF EXISTS orders");
 
         onCreate(db);
     }
