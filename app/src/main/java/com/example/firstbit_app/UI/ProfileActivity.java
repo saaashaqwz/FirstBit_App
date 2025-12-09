@@ -1,6 +1,7 @@
 package com.example.firstbit_app.UI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,8 +10,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.firstbit_app.Adapters.OrderAdapter;
+import com.example.firstbit_app.DbHelper;
+import com.example.firstbit_app.Models.Order;
 import com.example.firstbit_app.R;
+
+import java.util.List;
 
 /**
  * активность профиля пользователя - отображает его данные и заказы
@@ -20,11 +28,35 @@ public class ProfileActivity extends AppCompatActivity {
     private LinearLayout navHome, navCart, navProfile;
     private ImageView btnSettings;
 
+    private TextView userGreeting, emptyOrdersText;
+    private RecyclerView ordersRecyclerView;
+    private DbHelper dbHelper;
+    private OrderAdapter orderAdapter;
+    private int userId = -1;
+    private String userLogin = "Гость";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        dbHelper = new DbHelper(this, null);
+
+        userGreeting = findViewById(R.id.tv_user_name);
+        ordersRecyclerView = findViewById(R.id.rv_orders);
+        emptyOrdersText = findViewById(R.id.empty_orders);
+
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        userId = prefs.getInt("user_id", -1);
+
+        if (userId != -1) {
+            userLogin = dbHelper.getUserLoginById(userId); // Добавим этот метод в DbHelper
+            if (userLogin == null) userLogin = "Пользователь";
+        }
+
+        userGreeting.setText("Привет, " + userLogin + "!");
+
+        setupOrders();
         initializeViews();
         setupCustomNavigation();
         setActiveNavItem(navProfile);
@@ -51,6 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setupOrders();
         setActiveNavItem(navProfile);
     }
 
@@ -97,6 +130,28 @@ public class ProfileActivity extends AppCompatActivity {
             icon.setColorFilter(inactiveColor);
             text.setTextColor(inactiveColor);
             text.setTextSize(12);
+        }
+    }
+
+    private void setupOrders() {
+        if (userId == -1) {
+            emptyOrdersText.setText("Войдите в аккаунт, чтобы видеть заказы");
+            emptyOrdersText.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        List<Order> orders = dbHelper.getUserOrders(userId);
+
+        if (orders.isEmpty()) {
+            emptyOrdersText.setVisibility(View.VISIBLE);
+            ordersRecyclerView.setVisibility(View.GONE);
+        } else {
+            emptyOrdersText.setVisibility(View.GONE);
+            ordersRecyclerView.setVisibility(View.VISIBLE);
+
+            orderAdapter = new OrderAdapter(this, orders);
+            ordersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            ordersRecyclerView.setAdapter(orderAdapter);
         }
     }
 }

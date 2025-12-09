@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.firstbit_app.Models.Cart;
 import com.example.firstbit_app.Models.Category;
+import com.example.firstbit_app.Models.Order;
 import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.Models.Service;
 import com.example.firstbit_app.Models.User;
@@ -193,6 +194,18 @@ public class DbHelper extends SQLiteOpenHelper {
         c.close();
         db.close();
         return id;
+    }
+
+    public String getUserLoginById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT login FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
+        String login = null;
+        if (cursor.moveToFirst()) {
+            login = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return login;
     }
 
     /**
@@ -710,7 +723,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         int total = cart.getTotalPrice();
         String deadline = (cart.getType().equals("service")) ? cart.getDeadline() : "N/A";
-        String status = "Pending";
+        String status = "В обработке";
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -723,5 +736,35 @@ public class DbHelper extends SQLiteOpenHelper {
         long newRowId = db.insert("orders", null, values);
         db.close();
         return (newRowId != -1) ? (int) newRowId : -1;
+    }
+
+    public List<Order> getUserOrders(int userId) {
+        List<Order> orders = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT o.id, o.cart_id, o.user_id, o.status, o.deadline, o.total " +
+                "FROM orders o " +
+                "WHERE o.user_id = ? " +
+                "ORDER BY o.id DESC";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Order order = new Order(
+                        cursor.getInt(0),
+                        cursor.getInt(1),
+                        cursor.getInt(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        cursor.getInt(5)
+                );
+                orders.add(order);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return orders;
     }
 }
