@@ -702,15 +702,15 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * создаёт заказ на основе элемента корзины
+     * создаёт заказ на основе элемента корзины и возвращает ID нового заказа
      */
-    public boolean createOrderFromCart(int cartId, int userId) {
+    public int createOrderFromCart(int cartId, int userId) {
         Cart cart = getCartItem(cartId);
-        if (cart == null) return false;
+        if (cart == null) return -1;
 
         int total = cart.getTotalPrice();
-        String deadline = (cart.getType().equals("service")) ? cart.getDeadline() : "Н/Д";
-        String status = "В ожидании";
+        String deadline = (cart.getType().equals("service")) ? cart.getDeadline() : "N/A";
+        String status = "Pending";
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -720,8 +720,8 @@ public class DbHelper extends SQLiteOpenHelper {
         values.put("deadline", deadline);
         values.put("total", total);
 
-        long result = db.insert("orders", null, values);
+        long newRowId = db.insert("orders", null, values);
         db.close();
-        return result != -1;
+        return (newRowId != -1) ? (int) newRowId : -1;
     }
 }

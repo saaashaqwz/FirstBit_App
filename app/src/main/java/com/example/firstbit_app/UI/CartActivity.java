@@ -252,27 +252,43 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         }
 
         boolean allSuccess = true;
-        List<Cart> itemsToRemove = new ArrayList<>();
+        List<Integer> orderIds = new ArrayList<>();
 
         for (Cart cart : carts) {
-            boolean success = dbHelper.createOrderFromCart(cart.getId(), userId);
-            if (success) {
-                itemsToRemove.add(cart);
+            int orderId = dbHelper.createOrderFromCart(cart.getId(), userId);
+            if (orderId != -1) {
+                orderIds.add(orderId);
+                dbHelper.removeFromCart(cart.getId());
             } else {
                 allSuccess = false;
             }
         }
 
-        for (Cart cart : itemsToRemove) {
-            dbHelper.removeFromCart(cart.getId());
-        }
-
-        if (allSuccess) {
-            Toast.makeText(this, "Заказ успешно оформлен!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Ошибка при оформлении некоторых элементов заказа", Toast.LENGTH_SHORT).show();
-        }
-
         loadCartItems();
+
+        if (allSuccess && !orderIds.isEmpty()) {
+            showSuccessDialog(orderIds);
+        } else {
+            Toast.makeText(this, "Ошибка при оформлении заказа", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * показывает окно успеха с номером заказа
+     */
+    private void showSuccessDialog(List<Integer> orderIds) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("Заказ успешно оформлен!")
+                .setMessage("Ваш заказ " + orderIds.get(0) + " принят в обработку.\n\nМы свяжемся с вами в ближайшее время.")
+                .setIcon(R.drawable.icon_success)
+                .setPositiveButton("Отлично!", (dialog, which) -> dialog.dismiss())
+                .setCancelable(false);
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(getResources().getColor(R.color.magenta));
     }
 }
