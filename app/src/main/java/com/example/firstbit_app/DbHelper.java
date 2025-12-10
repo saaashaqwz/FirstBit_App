@@ -22,7 +22,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -39,6 +39,7 @@ public class DbHelper extends SQLiteOpenHelper {
         String CREATE_USERS_TABLE = "CREATE TABLE users (" +
                 "id INTEGER PRIMARY KEY, " +
                 "login TEXT, " +
+                "name TEXT DEFAULT '', " +
                 "phone TEXT, " +
                 "password TEXT)";
         db.execSQL(CREATE_USERS_TABLE);
@@ -206,6 +207,36 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return login;
+    }
+
+    public String getUserNameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT name FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
+        String name = "";
+        if (c.moveToFirst()) name = c.getString(0);
+        c.close();
+        db.close();
+        return name;
+    }
+
+    public String getUserPhoneById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT phone FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
+        String phone = "";
+        if (c.moveToFirst()) phone = c.getString(0);
+        c.close();
+        db.close();
+        return phone;
+    }
+
+    public boolean updateUserNameAndPhone(int userId, String name, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("name", name);
+        cv.put("phone", phone);
+        int rows = db.update("users", cv, "id = ?", new String[]{String.valueOf(userId)});
+        db.close();
+        return rows > 0;
     }
 
     /**
