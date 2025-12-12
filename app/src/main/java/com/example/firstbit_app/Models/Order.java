@@ -5,7 +5,6 @@ package com.example.firstbit_app.Models;
  */
 public class Order {
     private int id;
-    private int cartId;
     private int userId;
     private String status;
     private String deadline;
@@ -13,9 +12,8 @@ public class Order {
 
     public Order() {}
 
-    public Order(int id, int cartId, int userId, String status, String deadline, int total) {
+    public Order(int id, int userId, String status, String deadline, int total) {
         this.id = id;
-        this.cartId = cartId;
         this.userId = userId;
         this.status = status;
         this.deadline = deadline;
@@ -24,9 +22,6 @@ public class Order {
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-
-    public int getCartId() { return cartId; }
-    public void setCartId(int cartId) { this.cartId = cartId; }
 
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }

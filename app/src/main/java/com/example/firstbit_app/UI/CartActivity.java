@@ -217,57 +217,48 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
      * загружает элементы корзины и обновляет UI
      */
     private void loadCartItems() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
+        int userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .getInt("user_id", -1);
+
+        if (userId == -1) return;
 
         carts = dbHelper.getCartItems(userId);
-        cartAdapter.notifyDataSetChanged();
-
-        int itemCount = dbHelper.getCartItemsCount(userId);
-        int totalPrice = dbHelper.getCartTotalPrice(userId);
-
-        totalPriceText.setText(String.format("Итого: %,d ₽", totalPrice));
-
-        if (itemCount == 0) {
-            cartRecyclerView.setVisibility(View.GONE);
-            emptyCartText.setVisibility(View.VISIBLE);
-            checkoutSection.setVisibility(View.GONE);
-        } else {
-            cartRecyclerView.setVisibility(View.VISIBLE);
-            emptyCartText.setVisibility(View.GONE);
-            checkoutSection.setVisibility(View.VISIBLE);
+        if (cartAdapter != null) {
+            cartAdapter.notifyDataSetChanged();
         }
+        updateCartTotal();
+        updateEmptyState();
     }
 
     /**
-     * обрабатывает оформление заказа
+     * оформляет заказ из корзины
      */
     private void checkoutCart() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
 
-        if (carts.isEmpty()) {
+        if (userId == -1) {
+            Toast.makeText(this, "Ошибка авторизации", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<Cart> cartItems = dbHelper.getCartItems(userId);
+
+        if (cartItems.isEmpty()) {
             Toast.makeText(this, "Корзина пуста", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        boolean allSuccess = true;
-        List<Integer> orderIds = new ArrayList<>();
+        int orderId = dbHelper.createOrder(userId, cartItems);
 
-        for (Cart cart : carts) {
-            int orderId = dbHelper.createOrderFromCart(cart.getId(), userId);
-            if (orderId != -1) {
-                orderIds.add(orderId);
-                dbHelper.removeFromCart(cart.getId());
-            } else {
-                allSuccess = false;
+        if (orderId != -1) {
+            for (Cart item : cartItems) {
+                dbHelper.removeFromCart(item.getId());
             }
-        }
 
-        loadCartItems();
+            loadCartItems();
+            showSuccessDialog(orderId);
 
-        if (allSuccess && !orderIds.isEmpty()) {
-            showSuccessDialog(orderIds);
         } else {
             Toast.makeText(this, "Ошибка при оформлении заказа", Toast.LENGTH_SHORT).show();
         }
@@ -276,11 +267,11 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     /**
      * показывает окно успеха с номером заказа
      */
-    private void showSuccessDialog(List<Integer> orderIds) {
+    private void showSuccessDialog(int orderId) {
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 
         builder.setTitle("Заказ успешно оформлен!")
-                .setMessage("Ваш заказ " + orderIds.get(0) + " принят в обработку.\n\nМы свяжемся с вами в ближайшее время.")
+                .setMessage("Ваш заказ №" + orderId + " принят в обработку.\n\nМы свяжемся с вами в ближайшее время.")
                 .setIcon(R.drawable.icon_success)
                 .setPositiveButton("Отлично!", (dialog, which) -> dialog.dismiss())
                 .setCancelable(false);

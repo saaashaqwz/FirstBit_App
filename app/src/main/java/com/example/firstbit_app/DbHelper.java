@@ -22,7 +22,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -93,15 +93,30 @@ public class DbHelper extends SQLiteOpenHelper {
         // таблица заказов
         String CREATE_ORDERS_TABLE = "CREATE TABLE orders (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "cart_id INTEGER, " +
                 "user_id INTEGER, " +
                 "status TEXT, " +
                 "deadline TEXT, " +
                 "total INTEGER, " +
-                "FOREIGN KEY(cart_id) REFERENCES cart(id) ON DELETE SET NULL, " +
                 "FOREIGN KEY(user_id) REFERENCES users(id))";
         db.execSQL(CREATE_ORDERS_TABLE);
         android.util.Log.d("DbHelper", "Таблица заказов создана");
+
+        // таблица элементов заказа
+        String CREATE_ORDER_ITEMS_TABLE = "CREATE TABLE order_items (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "order_id INTEGER, " +
+                "product_id INTEGER, " +
+                "service_id INTEGER, " +
+                "title TEXT, " +
+                "price INTEGER, " +
+                "quantity INTEGER DEFAULT 1, " +
+                "deadline TEXT, " +
+                "type TEXT, " +  // "product" or "service"
+                "FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY(product_id) REFERENCES products(id), " +
+                "FOREIGN KEY(service_id) REFERENCES services(id))";
+        db.execSQL(CREATE_ORDER_ITEMS_TABLE);
+        android.util.Log.d("DbHelper", "Таблица элементов заказов создана");
 
         initializeData(db);
     }
@@ -119,6 +134,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS services");
         db.execSQL("DROP TABLE IF EXISTS cart");
         db.execSQL("DROP TABLE IF EXISTS orders");
+        db.execSQL("DROP TABLE IF EXISTS order_items");
 
         onCreate(db);
     }
@@ -746,34 +762,75 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * создаёт заказ на основе элемента корзины и возвращает ID нового заказа
+     * создаёт заказ на основе всей корзины и возвращает ID нового заказа
      */
-    public int createOrderFromCart(int cartId, int userId) {
-        Cart cart = getCartItem(cartId);
-        if (cart == null) return -1;
+    public int createOrder(int userId, List<Cart> cartItems) {
+        if (cartItems.isEmpty()) return -1;
 
-        int total = cart.getTotalPrice();
-        String deadline = (cart.getType().equals("service")) ? cart.getDeadline() : "N/A";
+        int total = 0;
+        int maxDays = 0;
+
+        for (Cart item : cartItems) {
+            total += item.getTotalPrice();
+
+            if (item.getType().equals("service") && item.getDeadline() != null) {
+                int days = parseDeadlineToDays(item.getDeadline());
+                if (days > maxDays) {
+                    maxDays = days;
+                }
+            }
+        }
+
+        String deadline;
+        if (maxDays > 0) {
+            deadline = "до " + maxDays + " дней";
+        } else {
+            deadline = "Н/Д";
+        }
+
         String status = "В обработке";
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("cart_id", cartId);
         values.put("user_id", userId);
         values.put("status", status);
         values.put("deadline", deadline);
         values.put("total", total);
 
         long newRowId = db.insert("orders", null, values);
+
+        if (newRowId == -1) {
+            db.close();
+            return -1;
+        }
+
+        for (Cart item : cartItems) {
+            ContentValues itemValues = new ContentValues();
+            itemValues.put("order_id", newRowId);
+            itemValues.put("title", item.getTitle());
+            itemValues.put("price", item.getPrice());
+            itemValues.put("quantity", item.getQuantity());
+            itemValues.put("deadline", item.getDeadline());
+            itemValues.put("type", item.getType());
+
+            if (item.getType().equals("product")) {
+                itemValues.put("product_id", item.getProductId());
+            } else if (item.getType().equals("service")) {
+                itemValues.put("service_id", item.getServiceId());
+            }
+
+            db.insert("order_items", null, itemValues);
+        }
+
         db.close();
-        return (newRowId != -1) ? (int) newRowId : -1;
+        return (int) newRowId;
     }
 
     public List<Order> getUserOrders(int userId) {
         List<Order> orders = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT o.id, o.cart_id, o.user_id, o.status, o.deadline, o.total " +
+        String query = "SELECT o.id, o.user_id, o.status, o.deadline, o.total " +
                 "FROM orders o " +
                 "WHERE o.user_id = ? " +
                 "ORDER BY o.id DESC";
@@ -785,10 +842,9 @@ public class DbHelper extends SQLiteOpenHelper {
                 Order order = new Order(
                         cursor.getInt(0),
                         cursor.getInt(1),
-                        cursor.getInt(2),
+                        cursor.getString(2),
                         cursor.getString(3),
-                        cursor.getString(4),
-                        cursor.getInt(5)
+                        cursor.getInt(4)
                 );
                 orders.add(order);
             } while (cursor.moveToNext());
@@ -797,5 +853,25 @@ public class DbHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return orders;
+    }
+
+    private int parseDeadlineToDays(String deadline) {
+        if (deadline == null || deadline.trim().isEmpty() || deadline.equalsIgnoreCase("N/A")) {
+            return 0;
+        }
+
+        String lower = deadline.toLowerCase().trim();
+
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)-(\\d+)\\s*дней?").matcher(lower);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(2));
+        }
+
+        matcher = java.util.regex.Pattern.compile("(\\d+)\\s*дней?").matcher(lower);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+
+        return 0;
     }
 }

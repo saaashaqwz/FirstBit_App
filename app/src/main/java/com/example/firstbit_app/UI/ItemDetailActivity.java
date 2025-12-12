@@ -25,7 +25,7 @@ import com.example.firstbit_app.R;
 public class ItemDetailActivity extends AppCompatActivity {
 
     private ImageView itemImage;
-    private TextView itemTitle, itemPrice, itemDescription, itemLicense, itemDeadline;
+    private TextView itemTitle, itemPrice, itemDescription, itemLicense, itemDeadline, btnBack;
     private Button addToCartButton;
     private Toolbar toolbar;
     private DbHelper dbHelper;
@@ -52,7 +52,9 @@ public class ItemDetailActivity extends AppCompatActivity {
         itemLicense = findViewById(R.id.item_license);
         itemDeadline = findViewById(R.id.item_deadline);
         addToCartButton = findViewById(R.id.add_to_cart_button);
+        btnBack = findViewById(R.id.btn_back);
 
+        btnBack.setOnClickListener(v -> finish());
         type = getIntent().getStringExtra("type");
         id = getIntent().getIntExtra("id", -1);
 
