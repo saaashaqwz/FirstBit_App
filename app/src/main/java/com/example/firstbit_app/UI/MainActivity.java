@@ -1,6 +1,7 @@
 package com.example.firstbit_app.UI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,14 +26,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        if (userId != -1) {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         Button buttonLogin = findViewById(R.id.button_login);
         Button buttonJoin = findViewById(R.id.button_join);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             /**
              * обрабатывает событие клика по кнопке для перехода к экрану регистрации
-             *
-             * @param v Виджет, по которому был выполнен клик
              */
             @Override
             public void onClick(View v) {
@@ -44,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
         buttonJoin.setOnClickListener(new View.OnClickListener() {
             /**
              * обрабатывает событие клика по кнопке для перехода к экрану авторизации
-             *
-             * @param v Виджет, по которому был выполнен клик
              */
             @Override
             public void onClick(View v) {

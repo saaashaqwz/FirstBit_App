@@ -43,6 +43,18 @@
             android:layout_height="28dp"
             android:src="@drawable/icon_setting"
             android:tint="@color/magenta"
+            android:layout_marginRight="60dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:clickable="true"
+            android:focusable="true"/>
+
+        <ImageView
+            android:id="@+id/btn_logout"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/icon_logout"
+            android:tint="@color/magenta"
             android:layout_marginRight="10dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"

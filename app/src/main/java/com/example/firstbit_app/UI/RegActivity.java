@@ -93,8 +93,9 @@ public class RegActivity extends AppCompatActivity {
                     userPhone.getText().clear();
                     userPassword.getText().clear();
 
-                    Intent intent = new Intent(RegActivity.this, AuthActivity.class);
+                    Intent intent = new Intent(RegActivity.this, HomeActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             }
         });

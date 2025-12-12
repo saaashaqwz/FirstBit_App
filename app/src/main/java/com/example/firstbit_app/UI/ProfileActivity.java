@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,11 +51,20 @@ public class ProfileActivity extends AppCompatActivity {
         userId = prefs.getInt("user_id", -1);
 
         if (userId != -1) {
-            userLogin = dbHelper.getUserLoginById(userId); // Добавим этот метод в DbHelper
+            userLogin = dbHelper.getUserLoginById(userId);
             if (userLogin == null) userLogin = "Пользователь";
         }
 
         userGreeting.setText("Привет, " + userLogin + "!");
+
+        ImageView btnLogout = findViewById(R.id.btn_logout);
+        btnLogout.setOnClickListener(v -> {
+            prefs.edit().remove("user_id").apply();
+
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            startActivity(intent);
+            finishAffinity();
+        });
 
         setupOrders();
         initializeViews();
