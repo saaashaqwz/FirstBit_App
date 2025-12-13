@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.firstbit_app.Models.Cart;
 import com.example.firstbit_app.Models.Category;
 import com.example.firstbit_app.Models.Order;
+import com.example.firstbit_app.Models.OrderItem;
 import com.example.firstbit_app.Models.Product;
 import com.example.firstbit_app.Models.Service;
 import com.example.firstbit_app.Models.User;
@@ -768,24 +769,22 @@ public class DbHelper extends SQLiteOpenHelper {
         if (cartItems.isEmpty()) return -1;
 
         int total = 0;
-        int maxDays = 0;
+        String deadline = "Н/Д";
+        boolean hasService = false;
+        String serviceDeadline = null;
 
         for (Cart item : cartItems) {
             total += item.getTotalPrice();
-
-            if (item.getType().equals("service") && item.getDeadline() != null) {
-                int days = parseDeadlineToDays(item.getDeadline());
-                if (days > maxDays) {
-                    maxDays = days;
+            if (item.getType().equals("service")) {
+                hasService = true;
+                if (serviceDeadline == null) {
+                    serviceDeadline = item.getDeadline();
                 }
             }
         }
 
-        String deadline;
-        if (maxDays > 0) {
-            deadline = "до " + maxDays + " дней";
-        } else {
-            deadline = "Н/Д";
+        if (hasService) {
+            deadline = serviceDeadline;
         }
 
         String status = "В обработке";
@@ -855,23 +854,29 @@ public class DbHelper extends SQLiteOpenHelper {
         return orders;
     }
 
-    private int parseDeadlineToDays(String deadline) {
-        if (deadline == null || deadline.trim().isEmpty() || deadline.equalsIgnoreCase("N/A")) {
-            return 0;
+    public List<OrderItem> getOrderItems(int orderId) {
+        List<OrderItem> items = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT title, price, quantity, deadline, type FROM order_items WHERE order_id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(orderId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                OrderItem item = new OrderItem(
+                        cursor.getString(0),
+                        cursor.getInt(1),
+                        cursor.getInt(2),
+                        cursor.getString(3),
+                        cursor.getString(4)
+                );
+                items.add(item);
+            } while (cursor.moveToNext());
         }
 
-        String lower = deadline.toLowerCase().trim();
-
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)-(\\d+)\\s*дней?").matcher(lower);
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(2));
-        }
-
-        matcher = java.util.regex.Pattern.compile("(\\d+)\\s*дней?").matcher(lower);
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(1));
-        }
-
-        return 0;
+        cursor.close();
+        db.close();
+        return items;
     }
 }

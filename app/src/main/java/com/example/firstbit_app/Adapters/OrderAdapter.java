@@ -15,6 +15,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     private Context context;
     private List<Order> orders;
+    private OnOrderClickListener clickListener;
 
     public OrderAdapter(Context context, List<Order> orders) {
         this.context = context;
@@ -42,6 +43,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         } else {
             holder.orderDeadline.setVisibility(View.GONE);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onOrderClick(orders.get(position));
+            }
+        });
     }
 
     @Override
@@ -59,5 +66,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             orderStatus = itemView.findViewById(R.id.order_status);
             orderDeadline = itemView.findViewById(R.id.order_deadline);
         }
+    }
+
+    public interface OnOrderClickListener {
+        void onOrderClick(Order order);
+    }
+
+    public void setOnOrderClickListener(OnOrderClickListener listener) {
+        this.clickListener = listener;
     }
 }

@@ -8,15 +8,19 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firstbit_app.Adapters.OrderAdapter;
+import com.example.firstbit_app.Adapters.OrderDetailAdapter;
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Order;
+import com.example.firstbit_app.Models.OrderItem;
 import com.example.firstbit_app.R;
 
 import java.util.List;
@@ -163,5 +167,46 @@ public class ProfileActivity extends AppCompatActivity {
             ordersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             ordersRecyclerView.setAdapter(orderAdapter);
         }
+
+        if (!orders.isEmpty()) {
+            orderAdapter = new OrderAdapter(this, orders);
+            ordersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            ordersRecyclerView.setAdapter(orderAdapter);
+
+            orderAdapter.setOnOrderClickListener(order -> {
+                showOrderDetailDialog(order.getId(), order.getTotal());
+            });
+        }
+    }
+
+    private void showOrderDetailDialog(int orderId, int orderTotal) {
+        List<OrderItem> orderItems = dbHelper.getOrderItems(orderId);
+
+        if (orderItems.isEmpty()) {
+            Toast.makeText(this, "Нет данных по заказу", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Заказ №" + orderId);
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_order_detail, null);
+        RecyclerView recyclerView = view.findViewById(R.id.order_items_recycler);
+        TextView totalText = view.findViewById(R.id.order_total_text);
+        Button btnClose = view.findViewById(R.id.btn_close_dialog);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new OrderDetailAdapter(this, orderItems));
+
+        totalText.setText(String.format("Итого: %,d ₽", orderTotal));
+
+        builder.setView(view);
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }
