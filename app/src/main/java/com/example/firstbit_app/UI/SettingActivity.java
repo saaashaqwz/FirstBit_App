@@ -2,16 +2,17 @@ package com.example.firstbit_app.UI;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.R;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * активность настройки - отображает данные пользователя
@@ -19,8 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 public class SettingActivity extends AppCompatActivity {
 
     private TextInputEditText etName, etLogin, etPhone;
-    private TextInputLayout tilPhone;
-    private TextView tvPhoneHint, btnBack;
+    private TextView tvPhoneHint, btnBack, btnAboutApp;
     private Button btnSave;
     private DbHelper dbHelper;
     private int userId;
@@ -36,12 +36,13 @@ public class SettingActivity extends AppCompatActivity {
         etName = findViewById(R.id.et_name);
         etLogin = findViewById(R.id.et_login);
         etPhone = findViewById(R.id.et_phone);
-        tilPhone = findViewById(R.id.til_phone);
         tvPhoneHint = findViewById(R.id.tv_phone_hint);
         btnSave = findViewById(R.id.btn_save_settings);
         btnBack = findViewById(R.id.btn_back);
+        btnAboutApp = findViewById(R.id.btn_about_app);
 
         btnBack.setOnClickListener(v -> finish());
+        btnAboutApp.setOnClickListener(v -> showAboutDialog());
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -122,5 +123,22 @@ public class SettingActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return true;
+    }
+
+    private void showAboutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_about_app, null);
+
+        Button btnClose = view.findViewById(R.id.btn_close_about);
+
+        builder.setView(view);
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

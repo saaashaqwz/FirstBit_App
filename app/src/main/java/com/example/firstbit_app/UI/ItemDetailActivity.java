@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.Models.Product;
@@ -25,9 +24,8 @@ import com.example.firstbit_app.R;
 public class ItemDetailActivity extends AppCompatActivity {
 
     private ImageView itemImage;
-    private TextView itemTitle, itemPrice, itemDescription, itemLicense, itemDeadline, btnBack;
+    private TextView itemTitle, itemPrice, itemDescription, itemLicense, itemDeadline, btnItemDetailBack;
     private Button addToCartButton;
-    private Toolbar toolbar;
     private DbHelper dbHelper;
     private String type;
     private int id;
@@ -43,7 +41,6 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         dbHelper = new DbHelper(this, null);
 
-        toolbar = findViewById(R.id.toolbar_detail);
 
         itemImage = findViewById(R.id.item_image);
         itemTitle = findViewById(R.id.item_title);
@@ -52,23 +49,28 @@ public class ItemDetailActivity extends AppCompatActivity {
         itemLicense = findViewById(R.id.item_license);
         itemDeadline = findViewById(R.id.item_deadline);
         addToCartButton = findViewById(R.id.add_to_cart_button);
-        btnBack = findViewById(R.id.btn_back);
+        btnItemDetailBack = findViewById(R.id.btn_item_detail_back);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnItemDetailBack.setOnClickListener(v -> finish());
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Деталь товара");
+        }
+
         type = getIntent().getStringExtra("type");
         id = getIntent().getIntExtra("id", -1);
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         userId = prefs.getInt("user_id", -1);
 
-        if (id == -1 || type == null) {
+        if (userId == -1) {
             Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         loadItemDetails();
-
         addToCartButton.setOnClickListener(v -> addToCart());
     }
 
