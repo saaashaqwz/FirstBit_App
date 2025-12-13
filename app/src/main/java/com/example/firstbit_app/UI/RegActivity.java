@@ -70,33 +70,52 @@ public class RegActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String login = userLogin.getText().toString().trim();
-                String phone = userPhone.getText().toString().trim();
+                String rawPhone = userPhone.getText().toString().trim();
+                String normalizedPhone = normalizePhone(rawPhone);
                 String password = userPassword.getText().toString().trim();
 
-                if (login.isEmpty() || phone.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(RegActivity.this, "Не все поля заполенны", Toast.LENGTH_SHORT).show();
+                if (login.isEmpty() || normalizedPhone.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(RegActivity.this, "Не все поля заполнены", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                else if (db.isLoginExists(login) || db.isPhoneExists(phone)) {
+
+                if (login.length() > 30 || login.length() < 4) {
+                    Toast.makeText(RegActivity.this, "Логин должен быть от 4 до 30 символов", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String phoneDigits = normalizedPhone.replaceAll("\\D", "");
+                if (phoneDigits.length() != 11 || (!phoneDigits.startsWith("7") && !phoneDigits.startsWith("8"))) {
+                    Toast.makeText(RegActivity.this, "Некорректный телефон", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (password.length() > 50 || password.length() < 8) {
+                    Toast.makeText(RegActivity.this, "Пароль должен быть от 8 до 50 символов", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (db.isLoginExists(login) || db.isPhoneExists(normalizedPhone)) {
                     Toast.makeText(RegActivity.this, "Такой пользователь уже существует", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                else {
-                    User user = new User(login, phone, password);
 
-                    db.addUser(user);
-                    Toast.makeText(RegActivity.this, "Пользователь " + login + " зарегистрирован", Toast.LENGTH_SHORT).show();
+                User user = new User(login, normalizedPhone, password);
 
-                    int userId = db.getUserId(login);
-                    SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                    prefs.edit().putInt("user_id", userId).apply();
+                db.addUser(user);
+                Toast.makeText(RegActivity.this, "Пользователь " + login + " зарегистрирован", Toast.LENGTH_SHORT).show();
 
-                    userLogin.getText().clear();
-                    userPhone.getText().clear();
-                    userPassword.getText().clear();
+                int userId = db.getUserId(login);
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                prefs.edit().putInt("user_id", userId).apply();
 
-                    Intent intent = new Intent(RegActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+                userLogin.getText().clear();
+                userPhone.getText().clear();
+                userPassword.getText().clear();
+
+                Intent intent = new Intent(RegActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -115,5 +134,23 @@ public class RegActivity extends AppCompatActivity {
         isPasswordVisible = !isPasswordVisible;
 
         userPassword.setSelection(userPassword.getText().length());
+    }
+
+    private String normalizePhone(String phone) {
+        if (phone == null) return null;
+
+        String digits = phone.replaceAll("\\D", "");
+
+        if (digits.startsWith("8") && digits.length() == 11) {
+            digits = "7" + digits.substring(1);
+        }
+        else if (digits.length() == 10) {
+            digits = "7" + digits;
+        }
+        else if (!digits.startsWith("7") || digits.length() != 11) {
+            return null;
+        }
+
+        return digits;
     }
 }

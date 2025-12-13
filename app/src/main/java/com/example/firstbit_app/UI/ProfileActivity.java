@@ -55,11 +55,17 @@ public class ProfileActivity extends AppCompatActivity {
         userId = prefs.getInt("user_id", -1);
 
         if (userId != -1) {
-            userLogin = dbHelper.getUserLoginById(userId);
-            if (userLogin == null) userLogin = "Пользователь";
-        }
+            String name = dbHelper.getUserNameById(userId);
+            String login = dbHelper.getUserLoginById(userId);
 
-        userGreeting.setText("Привет, " + userLogin + "!");
+            if (name != null && !name.trim().isEmpty()) {
+                userGreeting.setText("Привет, " + name.trim() + "!");
+            } else if (login != null && !login.trim().isEmpty()) {
+                userGreeting.setText("Привет, " + login + "!");
+            } else {
+                userGreeting.setText("Привет, Пользователь!");
+            }
+        }
 
         ImageView btnLogout = findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(v -> {
@@ -98,6 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setupOrders();
+        updateUserDisplayName();
         setActiveNavItem(navProfile);
     }
 
@@ -208,5 +215,18 @@ public class ProfileActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    /**
+     * обновляет отображаемое имя пользователя
+     */
+    private void updateUserDisplayName() {
+        if (userId != -1) {
+            String displayName = dbHelper.getUserNameById(userId);
+            if (displayName == null || displayName.isEmpty()) {
+                displayName = "Пользователь";
+            }
+            userGreeting.setText("Привет, " + displayName + "!");
+        }
     }
 }

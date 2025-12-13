@@ -47,7 +47,7 @@
             android:background="@null"
             android:ems="10"
             android:fontFamily="@font/inter"
-            android:hint="Введите логин"
+            android:hint="Введите логин/телефон"
             android:inputType="text"
             android:textColor="@color/white"
             android:textColorHint="@color/grey" />
@@ -115,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="250dp"
+        android:layout_marginTop="180dp"
         android:fontFamily="@font/inter"
         android:text="Зарегистрироваться"
         android:textColor="@color/white"

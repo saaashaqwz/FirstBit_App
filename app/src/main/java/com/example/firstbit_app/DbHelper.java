@@ -228,9 +228,15 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public String getUserNameById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery("SELECT name FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
+        Cursor c = db.rawQuery("SELECT name FROM users WHERE id = ?",
+                new String[]{String.valueOf(userId)});
         String name = "";
-        if (c.moveToFirst()) name = c.getString(0);
+        if (c.moveToFirst()) {
+            name = c.getString(0);
+            if (name == null || name.trim().isEmpty()) {
+                name = "";
+            }
+        }
         c.close();
         db.close();
         return name;
@@ -254,6 +260,34 @@ public class DbHelper extends SQLiteOpenHelper {
         int rows = db.update("users", cv, "id = ?", new String[]{String.valueOf(userId)});
         db.close();
         return rows > 0;
+    }
+
+    /**
+     * проверка пользователя по телефону и паролю
+     */
+    public boolean getUserByPhone(String phone, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE phone = ? AND password = ?",
+                new String[]{phone, password});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    /**
+     * получение ID пользователя по телефону
+     */
+    public int getUserIdByPhone(String phone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE phone = ?", new String[]{phone});
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return id;
     }
 
     /**

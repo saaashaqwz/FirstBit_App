@@ -12,7 +12,7 @@
     <RelativeLayout
         android:id="@+id/profile_header"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="130dp"
         android:background="@color/white"
         android:padding="16dp">
 
@@ -20,46 +20,46 @@
             android:id="@+id/avatar_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/icon_login"
-            android:scaleType="centerCrop"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"/>
+            android:scaleType="centerCrop"
+            android:src="@drawable/icon_login" />
 
         <TextView
             android:id="@+id/tv_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Привет, Логин!"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/dark_purple"
-            android:layout_toEndOf="@id/avatar_image"
+            android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
-            android:layout_centerVertical="true"/>
+            android:layout_toEndOf="@id/avatar_image"
+            android:text="Привет, Логин!"
+            android:textColor="@color/dark_purple"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/btn_settings"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:src="@drawable/icon_setting"
-            android:tint="@color/magenta"
-            android:layout_marginRight="60dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="60dp"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:src="@drawable/icon_setting"
+            android:tint="@color/magenta" />
 
         <ImageView
             android:id="@+id/btn_logout"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:src="@drawable/icon_logout"
-            android:tint="@color/magenta"
-            android:layout_marginRight="10dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:src="@drawable/icon_logout"
+            android:tint="@color/magenta" />
     </RelativeLayout>
 
     <TextView

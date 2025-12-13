@@ -12,11 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.firstbit_app.DbHelper;
 import com.example.firstbit_app.R;
@@ -63,50 +59,73 @@ public class AuthActivity extends AppCompatActivity {
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
-            /**
-             * обрабатывает событие клика по кнопке аутентификации
-             */
-            @Override
-            public void onClick(View v) {
-                String login = userLogin.getText().toString().trim();
-                String password = userPassword.getText().toString().trim();
+        button.setOnClickListener(v -> {
+            String input = userLogin.getText().toString().trim();
+            String password = userPassword.getText().toString().trim();
 
-                if (login.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(AuthActivity.this, "Не все поля заполенны", Toast.LENGTH_SHORT).show();
+            if (input.isEmpty() || password.isEmpty()) {
+                Toast.makeText(AuthActivity.this, "Заполните все поля", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            DbHelper db = new DbHelper(AuthActivity.this, null);
+            boolean isAuthSuccessful = false;
+            int userId = -1;
+
+            // 1. Сначала проверяем, существует ли такой логин
+            if (db.isLoginExists(input)) {
+                if (db.getUser(input, password)) {
+                    isAuthSuccessful = true;
+                    userId = db.getUserId(input);
                 }
-                else {
-                    DbHelper db = new DbHelper(AuthActivity.this, null);
-                    boolean userExists = db.isLoginExists(login);
-
-                    if (!userExists) {
-                        Toast.makeText(AuthActivity.this, "Пользователь " + login + " не зарегистрирован", Toast.LENGTH_SHORT).show();
-                        userLogin.getText().clear();
-                        userPassword.getText().clear();
-                    } else {
-                        boolean isAuth = db.getUser(login, password);
-
-                        if (isAuth) {
-                            Toast.makeText(AuthActivity.this, "Пользователь " + login + " авторизован", Toast.LENGTH_SHORT).show();
-                            userLogin.getText().clear();
-                            userPassword.getText().clear();
-
-                            int userId = db.getUserId(login);
-                            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                            prefs.edit().putInt("user_id", userId).apply();
-
-                            Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
-                            startActivity(intent);
-                        }
-
-                        else {
-                            Toast.makeText(AuthActivity.this, "Пользователь " + login + " НЕ авторизован", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(AuthActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
-                        }
+            } else {
+                // 2. Если логина нет — пробуем интерпретировать ввод как телефон
+                String normalizedPhone = normalizePhone(input);
+                if (normalizedPhone != null && db.isPhoneExists(normalizedPhone)) {
+                    if (db.getUserByPhone(normalizedPhone, password)) {
+                        isAuthSuccessful = true;
+                        userId = db.getUserIdByPhone(normalizedPhone);
                     }
                 }
             }
+
+            // Результат авторизации
+            if (isAuthSuccessful && userId != -1) {
+                Toast.makeText(AuthActivity.this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
+
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                prefs.edit().putInt("user_id", userId).apply();
+
+                userLogin.getText().clear();
+                userPassword.getText().clear();
+
+                Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(AuthActivity.this, "Неверный логин, номер телефона или пароль", Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+
+    /**
+     * нормализация номера телефона: приводит к виду 7xxxxxxxxxx
+     */
+    private String normalizePhone(String phone) {
+        if (phone == null || phone.isEmpty()) return null;
+
+        String digits = phone.replaceAll("\\D", "");
+
+        if (digits.startsWith("8") && digits.length() == 11) {
+            digits = "7" + digits.substring(1);
+        } else if (digits.length() == 10) {
+            digits = "7" + digits;
+        } else if (digits.startsWith("7") && digits.length() == 11) {
+        } else {
+            return null;
+        }
+
+        return digits;
     }
 
     /**
