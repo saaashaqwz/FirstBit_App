@@ -80,6 +80,11 @@ public class HomeActivity extends AppCompatActivity {
         List<Category> categoryList = dbHelper.getAllCategories();
         setCategoryRecycler(categoryList);
 
+        if (categoryAdapter != null) {
+            categoryAdapter.setSelectedPosition(0);
+        }
+        filterProductsAndServicesByCategory(0);
+
         initializeViews();
         setupCustomNavigation();
 
@@ -245,11 +250,13 @@ public class HomeActivity extends AppCompatActivity {
         List<Product> filteredProducts = new ArrayList<>();
         List<Service> filteredServices = new ArrayList<>();
 
-        if (categoryId == 1) {
+        if (categoryId == 0) {
+            filteredProducts.addAll(allProducts);
+            filteredServices.addAll(allServices);
+        } else if (categoryId == 1) {
             filteredProducts.clear();
             filteredServices.addAll(allServices);
-        }
-        else {
+        } else {
             for (Product product : allProducts) {
                 if (product.getCategory().getId() == categoryId) {
                     filteredProducts.add(product);

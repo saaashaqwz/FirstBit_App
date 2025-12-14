@@ -104,7 +104,6 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setupOrders();
-        updateUserDisplayName();
         setActiveNavItem(navProfile);
     }
 
@@ -215,18 +214,5 @@ public class ProfileActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
-
-    /**
-     * обновляет отображаемое имя пользователя
-     */
-    private void updateUserDisplayName() {
-        if (userId != -1) {
-            String displayName = dbHelper.getUserNameById(userId);
-            if (displayName == null || displayName.isEmpty()) {
-                displayName = "Пользователь";
-            }
-            userGreeting.setText("Привет, " + displayName + "!");
-        }
     }
 }

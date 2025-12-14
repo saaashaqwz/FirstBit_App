@@ -23,7 +23,7 @@ import java.util.List;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     public DbHelper(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -297,6 +297,7 @@ public class DbHelper extends SQLiteOpenHelper {
         android.util.Log.d("DbHelper", "Инициализация категорий...");
 
         List<Category> categories = new ArrayList<>();
+        categories.add(new Category(0, "Все"));
         categories.add(new Category(1, "Услуги"));
         categories.add(new Category(2, "Бухгалтерия"));
         categories.add(new Category(3, "Кадры"));
