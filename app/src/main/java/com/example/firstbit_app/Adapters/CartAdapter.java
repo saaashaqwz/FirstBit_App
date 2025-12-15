@@ -79,8 +79,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             int currentQuantity = cart.getQuantity();
             int newQuantity = currentQuantity + 1;
 
-            cart.setQuantity(newQuantity);
+            if (newQuantity > 5) {
+                Toast.makeText(context, "Максимум 5 шт. одного товара/услуги", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            cart.setQuantity(newQuantity);
             holder.itemQuantity.setText(String.valueOf(newQuantity));
             holder.itemTotal.setText(String.format("%,d ₽", cart.getTotalPrice()));
 
@@ -122,7 +126,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 listener.onCartUpdated();
             }
         } else {
-            Toast.makeText(context, "Ошибка обновления количества", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Максимум 5 шт. одного товара или общий лимит 50", Toast.LENGTH_SHORT).show();
         }
     }
 

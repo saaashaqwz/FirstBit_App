@@ -141,12 +141,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         if (success) {
             Toast.makeText(context, "Товар \"" + product.getTitle() + "\" добавлен в корзину",
                     Toast.LENGTH_SHORT).show();
-
-            if (cartUpdateListener != null) {
-                cartUpdateListener.onCartItemAdded();
-            }
         } else {
-            Toast.makeText(context, "Ошибка добавления товара в корзину", Toast.LENGTH_SHORT).show();
+            int currentTotal = dbHelper.getCartItemsCount(userId);
+            if (currentTotal >= 50) {
+                Toast.makeText(context, "В корзине максимум 50 товаров/услуг", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Нельзя добавить больше 5 шт. одного товара", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

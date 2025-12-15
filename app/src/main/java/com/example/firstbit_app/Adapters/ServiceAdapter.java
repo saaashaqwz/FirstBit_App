@@ -155,7 +155,12 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                 cartUpdateListener.onCartItemAdded();
             }
         } else {
-            Toast.makeText(context, "Ошибка добавления услуги в корзину", Toast.LENGTH_SHORT).show();
+            int currentTotal = dbHelper.getCartItemsCount(userId);
+            if (currentTotal >= 50) {
+                Toast.makeText(context, "В корзине максимум 50 товаров/услуг", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Нельзя добавить больше 5 шт. одной услуги", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

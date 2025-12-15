@@ -3,7 +3,10 @@ package com.example.firstbit_app.UI;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -210,6 +213,20 @@ public class ProfileActivity extends AppCompatActivity {
         builder.setCancelable(true);
 
         AlertDialog dialog = builder.create();
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.gravity = Gravity.CENTER;
+
+            int margin = (int) (getResources().getDisplayMetrics().density * 16);
+            layoutParams.horizontalMargin = margin / (float) getResources().getDisplayMetrics().widthPixels;
+
+            window.setAttributes(layoutParams);
+        }
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
 

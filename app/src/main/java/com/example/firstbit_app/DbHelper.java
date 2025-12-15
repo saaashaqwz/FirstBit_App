@@ -533,11 +533,28 @@ public class DbHelper extends SQLiteOpenHelper {
      * добавление товара в корзину
      */
     public boolean addToCart(int userId, int productId, int serviceId) {
+        if (userId <= 0) return false;
+
+        int currentTotal = getCartItemsCount(userId);
+
         if (isItemInCart(userId, productId, serviceId)) {
             CartQuantityInfo info = getCartItemQuantityInfo(userId, productId, serviceId);
+
+            if (info.quantity >= 5) {
+                return false;
+            }
+
+            if (currentTotal >= 50) {
+                return false;
+            }
+
             int newQuantity = info.quantity + 1;
             return updateCartItemQuantity(info.cartItemId, newQuantity);
         } else {
+            if (currentTotal >= 50) {
+                return false;
+            }
+
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put("user_id", userId);
@@ -615,6 +632,20 @@ public class DbHelper extends SQLiteOpenHelper {
      * обновление количества товара в корзине
      */
     public boolean updateCartItemQuantity(int cartItemId, int quantity) {
+        if (quantity > 5 || quantity < 1) {
+            return false;
+        }
+
+        Cart cart = getCartItem(cartItemId);
+        if (cart != null) {
+            int userId = cart.getUserId();
+            int currentTotal = getCartItemsCount(userId);
+            int delta = quantity - cart.getQuantity();
+            if (currentTotal + delta > 50) {
+                return false;
+            }
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("quantity", quantity);
