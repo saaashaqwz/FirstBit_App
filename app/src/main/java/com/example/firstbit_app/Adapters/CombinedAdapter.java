@@ -105,7 +105,7 @@ public class CombinedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * вспомогательные методы поиска позиции товара/услуги
+     * вспомогательный метод поиска позиции товара
      */
     private int getProductPosition(Product product) {
         List<Product> products = productAdapter.productList;
@@ -117,6 +117,9 @@ public class CombinedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
+    /**
+     * вспомогательный метод поиска позиции услуги
+     */
     private int getServicePosition(Service service) {
         List<Service> services = serviceAdapter.serviceList;
         for (int i = 0; i < services.size(); i++) {

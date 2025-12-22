@@ -28,9 +28,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private static final long CLICK_DELAY = 500;
     private long lastClickTime = 0;
 
-    public interface OnCartUpdateListener {
-        void onCartUpdated();
-    }
+    public interface OnCartUpdateListener { void onCartUpdated(); }
 
     public CartAdapter(Context context, List<Cart> carts, OnCartUpdateListener listener) {
         this.context = context;

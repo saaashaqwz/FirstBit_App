@@ -24,7 +24,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Версия 1.11.0"
+        android:text="Версия 1.12.0"
         android:textSize="14sp"
         android:textColor="@color/dark_grey"
         android:layout_marginBottom="24dp" />

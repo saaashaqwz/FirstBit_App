@@ -26,6 +26,9 @@ public class SettingActivity extends AppCompatActivity {
     private int userId;
     private String originalPhoneAtFirstLaunch;
 
+    /**
+     * вызывается при первом создании активности
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +65,9 @@ public class SettingActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveChanges());
     }
 
+    /**
+     * Загружает данные пользователя из БД
+     */
     private void loadUserData() {
         String login = dbHelper.getUserLoginById(userId);
         String name = dbHelper.getUserNameById(userId);
@@ -89,6 +95,9 @@ public class SettingActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * сохраняет изменения имени и номера телефона пользователя
+     */
     private void saveChanges() {
         String newName = etName.getText().toString().trim();
         String newPhone = etPhone.getText().toString().trim();
@@ -119,12 +128,18 @@ public class SettingActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * обрабатывает нажатие системной кнопки "Назад"
+     */
     @Override
     public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
 
+    /**
+     * отображает диалоговое окно с информацией о приложении
+     */
     private void showAboutDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 

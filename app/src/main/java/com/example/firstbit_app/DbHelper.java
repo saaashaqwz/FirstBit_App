@@ -214,6 +214,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    /**
+     * возвращает логин пользователя по его id
+     */
     public String getUserLoginById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT login FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
@@ -226,6 +229,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return login;
     }
 
+    /**
+     * возвращает имя пользователя по его id
+     */
     public String getUserNameById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT name FROM users WHERE id = ?",
@@ -242,6 +248,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return name;
     }
 
+    /**
+     * возвращает номер телефона пользователя по его id
+     */
     public String getUserPhoneById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT phone FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
@@ -252,6 +261,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return phone;
     }
 
+    /**
+     * обновляет имя и номер телефона пользователя в БД
+     */
     public boolean updateUserNameAndPhone(int userId, String name, String phone) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -891,6 +903,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return (int) newRowId;
     }
 
+    /**
+     * возвращает список всех заказов текущего пользователя
+     */
     public List<Order> getUserOrders(int userId) {
         List<Order> orders = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -920,6 +935,9 @@ public class DbHelper extends SQLiteOpenHelper {
         return orders;
     }
 
+    /**
+     * возвращает все позиции (товары и услуги) конкретного заказа
+     */
     public List<OrderItem> getOrderItems(int orderId) {
         List<OrderItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();

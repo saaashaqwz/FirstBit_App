@@ -74,6 +74,9 @@ public class ItemDetailActivity extends AppCompatActivity {
         addToCartButton.setOnClickListener(v -> addToCart());
     }
 
+    /**
+     * загружает и отображает детальную информацию о товаре/услуге
+     */
     private void loadItemDetails() {
         if (type.equals("product")) {
             Product product = dbHelper.getProductId(id);
@@ -143,6 +146,9 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * обрабатывает нажатие на системную кнопку "Назад"
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

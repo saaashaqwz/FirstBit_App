@@ -136,6 +136,9 @@ public class RegActivity extends AppCompatActivity {
         userPassword.setSelection(userPassword.getText().length());
     }
 
+    /**
+     * нормализация номера телефона: приводит к виду 7xxxxxxxxxx
+     */
     private String normalizePhone(String phone) {
         if (phone == null) return null;
 

@@ -44,4 +44,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Core testing libraries
+    testImplementation ("junit:junit:4.13.2")
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Optional: Mockito for mocking dependencies (очень полезно!)
+    testImplementation ("org.mockito:mockito-core:5.11.0")
+    androidTestImplementation ("org.mockito:mockito-android:5.11.0")
+
+    // Для тестирования работы с базой данных (Room или SQLite)
+    androidTestImplementation ("androidx.room:room-testing:2.6.1") // если используете Room
 }

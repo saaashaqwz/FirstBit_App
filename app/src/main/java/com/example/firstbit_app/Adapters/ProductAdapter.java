@@ -33,9 +33,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private DbHelper dbHelper;
     private OnCartUpdateListener cartUpdateListener;
 
-    public interface OnCartUpdateListener {
-        void onCartItemAdded();
-    }
+    public interface OnCartUpdateListener { void onCartItemAdded(); }
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
@@ -91,9 +89,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     @Override
-    public int getItemCount() {
-        return productList.size();
-    }
+    public int getItemCount() { return productList.size(); }
 
     /**
      * вложанный класс
@@ -113,9 +109,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
     }
 
-    /**
-     * закрывает подключение к БД при уничтожении
-     */
     @Override
     protected void finalize() throws Throwable {
         if (dbHelper != null) {
@@ -149,12 +142,5 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 Toast.makeText(context, "Нельзя добавить больше 5 шт. одного товара", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    /**
-     * устанавливает слушатель добавления в корзину
-     */
-    public void setCartUpdateListener(OnCartUpdateListener listener) {
-        this.cartUpdateListener = listener;
     }
 }

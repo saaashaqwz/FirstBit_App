@@ -17,9 +17,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * вызывается при первом создании активности
-     *
-     * @param savedInstanceState Если активность перезапускается после предыдущего завершения,
-     *                           этот Bundle содержит данные, которые она недавно предоставила в onSaveInstanceState(Bundle)
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

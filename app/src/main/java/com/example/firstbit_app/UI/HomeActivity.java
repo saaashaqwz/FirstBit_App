@@ -158,12 +158,18 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * настраивает обработчики кликов для нижней навигации
+     */
     private void setupCustomNavigation() {
         navHome.setOnClickListener(v -> handleNavigationClick(v, HomeActivity.class));
         navCart.setOnClickListener(v -> handleNavigationClick(v, CartActivity.class));
         navProfile.setOnClickListener(v -> handleNavigationClick(v, ProfileActivity.class));
     }
 
+    /**
+     * обрабатывает переход по нижней навигации
+     */
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
         if (this.getClass().equals(targetActivity)) {
             setActiveNavItem((LinearLayout) navView);
@@ -175,6 +181,9 @@ public class HomeActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * выделяет активный пункт нижней навигации визуально
+     */
     private void setActiveNavItem(LinearLayout activeNav) {
         resetAllNavItems();
 
@@ -188,6 +197,9 @@ public class HomeActivity extends AppCompatActivity {
         text.setTextSize(13);
     }
 
+    /**
+     * сбрасывает визуальное выделение всех пунктов нижней навигации
+     */
     private void resetAllNavItems() {
         LinearLayout[] navItems = {navHome, navCart, navProfile};
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_item_inactive);
@@ -226,6 +238,9 @@ public class HomeActivity extends AppCompatActivity {
         categoryRecycler.setAdapter(categoryAdapter);
     }
 
+    /**
+     * настраивает объединённый RecyclerView для отображения товаров/услуг в одной сетке
+     */
     private void setupCombinedRecyclerView() {
         try {
             productAdapter = new ProductAdapter(this, allProducts);

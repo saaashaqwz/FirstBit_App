@@ -27,18 +27,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private OnCategoryClickListener onCategoryClickListener;
     private int selectedPosition = 0;
 
-    public interface OnCategoryClickListener {
-        void onCategoryClick(Category category, int position);
-    }
+    public interface OnCategoryClickListener { void onCategoryClick(Category category, int position); }
 
     public CategoryAdapter(Context context, List<Category> categories) {
         this.context = context;
         this.categories = categories;
     }
 
-    public void setOnCategoryClickListener(OnCategoryClickListener listener) {
-        this.onCategoryClickListener = listener;
-    }
+    public void setOnCategoryClickListener(OnCategoryClickListener listener) { this.onCategoryClickListener = listener; }
 
     public void setSelectedPosition(int position) {
         int previousPosition = selectedPosition;

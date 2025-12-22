@@ -22,6 +22,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         this.orders = orders;
     }
 
+    /**
+     * создаёт ViewHolder для заказа
+     */
     @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -29,6 +32,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         return new OrderViewHolder(view);
     }
 
+    /**
+     * привязывает данные товара к ViewHolder
+     */
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orders.get(position);
@@ -52,10 +58,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     }
 
     @Override
-    public int getItemCount() {
-        return orders.size();
-    }
+    public int getItemCount() { return orders.size(); }
 
+    /**
+     * вложанный класс
+     */
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
         TextView orderId, orderTotal, orderStatus, orderDeadline;
 
@@ -68,10 +75,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         }
     }
 
-    public interface OnOrderClickListener {
-        void onOrderClick(Order order);
-    }
+    public interface OnOrderClickListener { void onOrderClick(Order order); }
 
+    /**
+     * устанавливает слушатель
+     */
     public void setOnOrderClickListener(OnOrderClickListener listener) {
         this.clickListener = listener;
     }

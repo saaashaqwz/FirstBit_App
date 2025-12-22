@@ -79,12 +79,18 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         setActiveNavItem(navCart);
     }
 
+    /**
+     * настраивает обработчики кликов для нижней навигации
+     */
     private void setupCustomNavigation() {
         navHome.setOnClickListener(v -> handleNavigationClick(v, HomeActivity.class));
         navCart.setOnClickListener(v -> handleNavigationClick(v, CartActivity.class));
         navProfile.setOnClickListener(v -> handleNavigationClick(v, ProfileActivity.class));
     }
 
+    /**
+     * обрабатывает переход по нижней навигации
+     */
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
         if (this.getClass().equals(targetActivity)) {
             setActiveNavItem((LinearLayout) navView);
@@ -96,6 +102,9 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         finish();
     }
 
+    /**
+     * выделяет активный пункт нижней навигации визуально
+     */
     private void setActiveNavItem(LinearLayout activeNav) {
         resetAllNavItems();
 
@@ -109,6 +118,9 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         text.setTextSize(13);
     }
 
+    /**
+     * сбрасывает визуальное выделение всех пунктов нижней навигации
+     */
     private void resetAllNavItems() {
         LinearLayout[] navItems = {navHome, navCart, navProfile};
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_item_inactive);
@@ -177,13 +189,6 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         if (totalPriceText != null) {
             totalPriceText.setText(String.format("Итого: %,d ₽", total));
         }
-    }
-
-    private int getCartItemsCount() {
-        int userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
-                .getInt("user_id", -1);
-
-        return dbHelper.getCartItemsCount(userId);
     }
 
     /**

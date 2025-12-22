@@ -72,14 +72,14 @@ public class AuthActivity extends AppCompatActivity {
             boolean isAuthSuccessful = false;
             int userId = -1;
 
-            // 1. Сначала проверяем, существует ли такой логин
+            // существует ли такой логин
             if (db.isLoginExists(input)) {
                 if (db.getUser(input, password)) {
                     isAuthSuccessful = true;
                     userId = db.getUserId(input);
                 }
             } else {
-                // 2. Если логина нет — пробуем интерпретировать ввод как телефон
+                // если логина нет — пробуем интерпретировать ввод как телефон
                 String normalizedPhone = normalizePhone(input);
                 if (normalizedPhone != null && db.isPhoneExists(normalizedPhone)) {
                     if (db.getUserByPhone(normalizedPhone, password)) {
@@ -89,7 +89,6 @@ public class AuthActivity extends AppCompatActivity {
                 }
             }
 
-            // Результат авторизации
             if (isAuthSuccessful && userId != -1) {
                 Toast.makeText(AuthActivity.this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
 

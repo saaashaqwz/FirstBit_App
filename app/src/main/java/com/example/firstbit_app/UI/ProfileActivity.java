@@ -41,8 +41,10 @@ public class ProfileActivity extends AppCompatActivity {
     private DbHelper dbHelper;
     private OrderAdapter orderAdapter;
     private int userId = -1;
-    private String userLogin = "Гость";
 
+    /**
+     * вызывается при первом создании активности
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +95,9 @@ public class ProfileActivity extends AppCompatActivity {
         btnSettings = findViewById(R.id.btn_settings);
     }
 
+    /**
+     * настраивает обработчик нажатия на кнопку перехода в настройки профиля
+     */
     private void setupSettingsButton() {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,12 +115,18 @@ public class ProfileActivity extends AppCompatActivity {
         setActiveNavItem(navProfile);
     }
 
+    /**
+     * настраивает обработчики кликов для нижней навигации
+     */
     private void setupCustomNavigation() {
         navHome.setOnClickListener(v -> handleNavigationClick(v, HomeActivity.class));
         navCart.setOnClickListener(v -> handleNavigationClick(v, CartActivity.class));
         navProfile.setOnClickListener(v -> handleNavigationClick(v, ProfileActivity.class));
     }
 
+    /**
+     * обрабатывает переход по нижней навигации
+     */
     private void handleNavigationClick(View navView, Class<?> targetActivity) {
         if (this.getClass().equals(targetActivity)) {
             setActiveNavItem((LinearLayout) navView);
@@ -127,6 +138,9 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * выделяет активный пункт нижней навигации визуально
+     */
     private void setActiveNavItem(LinearLayout activeNav) {
         resetAllNavItems();
 
@@ -140,6 +154,9 @@ public class ProfileActivity extends AppCompatActivity {
         text.setTextSize(13);
     }
 
+    /**
+     * сбрасывает визуальное выделение всех пунктов нижней навигации
+     */
     private void resetAllNavItems() {
         LinearLayout[] navItems = {navHome, navCart, navProfile};
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_item_inactive);
@@ -156,6 +173,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * загружает и отображает список заказов пользователя
+     */
     private void setupOrders() {
         if (userId == -1) {
             emptyOrdersText.setText("Войдите в аккаунт, чтобы видеть заказы");
@@ -188,6 +208,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * отображает диалоговое окно с подробной информацией о заказе
+     */
     private void showOrderDetailDialog(int orderId, int orderTotal) {
         List<OrderItem> orderItems = dbHelper.getOrderItems(orderId);
 

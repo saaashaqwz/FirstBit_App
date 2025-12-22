@@ -34,9 +34,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
     private DbHelper dbHelper;
     private OnCartUpdateListener cartUpdateListener;
 
-    public interface OnCartUpdateListener {
-        void onCartItemAdded();
-    }
+    public interface OnCartUpdateListener { void onCartItemAdded(); }
 
     public ServiceAdapter(Context context, List<Service> serviceList) {
         this.context = context;
@@ -96,9 +94,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
     }
 
     @Override
-    public int getItemCount() {
-        return serviceList != null ? serviceList.size() : 0;
-    }
+    public int getItemCount() { return serviceList != null ? serviceList.size() : 0; }
 
     /**
      * вложанный класс
@@ -162,12 +158,5 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                 Toast.makeText(context, "Нельзя добавить больше 5 шт. одной услуги", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    /**
-     * устанавливает слушатель добавления в корзину
-     */
-    public void setCartUpdateListener(OnCartUpdateListener listener) {
-        this.cartUpdateListener = listener;
     }
 }

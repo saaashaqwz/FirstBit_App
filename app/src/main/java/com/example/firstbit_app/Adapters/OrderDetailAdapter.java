@@ -25,6 +25,9 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         this.items = items;
     }
 
+    /**
+     * создаёт ViewHolder для элемента заказа
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -32,6 +35,9 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         return new ViewHolder(view);
     }
 
+    /**
+     * привязывает данные товара к ViewHolder
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderItem item = items.get(position);
@@ -52,10 +58,11 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
     }
 
     @Override
-    public int getItemCount() {
-        return items.size();
-    }
+    public int getItemCount() { return items.size(); }
 
+    /**
+     * вложанный класс
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, typeTag, deadline, quantity, total;
 
